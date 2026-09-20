@@ -110,6 +110,15 @@ jobs:
 
       - name: Pages の設定を読み込む
         uses: actions/configure-pages@v5
+        with:
+          # ★リポジトリのPages設定がまだ無ければ、ここで有効にする。★
+          #   GitHubの画面で Settings → Pages → Source: GitHub Actions を
+          #   選ぶのと同じことを、このワークフローの権限（pages: write）で行う。
+          #   すでに有効なら何もしない。
+          #
+          #   これが権限不足で失敗する場合は、上の画面操作を一度だけ
+          #   手で行ってください。以後は自動で公開されます。
+          enablement: true
 
       - name: 公開成果物をアップロード
         uses: actions/upload-pages-artifact@v3
