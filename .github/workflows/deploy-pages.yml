@@ -108,17 +108,19 @@ jobs:
           fi
           echo "OK: 秘密情報は含まれていません"
 
+      # ★このステップは、リポジトリのPagesが有効になっていないと失敗します。★
+      #
+      #   有効化はワークフローからはできません。
+      #   enablement: true を付けて試しましたが、Actionsへ渡される
+      #   既定のトークンにはPagesを有効化する権限が無く、失敗しました。
+      #   （pages: write は「公開する」権限で、「機能を有効にする」権限とは別）
+      #
+      #   最初の一度だけ、GitHubの画面で次を行ってください。
+      #     Settings → Pages → Build and deployment → Source → GitHub Actions
+      #
+      #   以後はpushのたびに自動で公開されます。この作業は繰り返し不要です。
       - name: Pages の設定を読み込む
         uses: actions/configure-pages@v5
-        with:
-          # ★リポジトリのPages設定がまだ無ければ、ここで有効にする。★
-          #   GitHubの画面で Settings → Pages → Source: GitHub Actions を
-          #   選ぶのと同じことを、このワークフローの権限（pages: write）で行う。
-          #   すでに有効なら何もしない。
-          #
-          #   これが権限不足で失敗する場合は、上の画面操作を一度だけ
-          #   手で行ってください。以後は自動で公開されます。
-          enablement: true
 
       - name: 公開成果物をアップロード
         uses: actions/upload-pages-artifact@v3
