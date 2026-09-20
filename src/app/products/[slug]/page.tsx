@@ -43,7 +43,7 @@ import {
   resolveStockStatus,
 } from '@/lib/labels'
 import { buildPageMetadata } from '@/lib/seo'
-import { SITE_URL } from '@/lib/site'
+import { SITE_URL, assetPath } from '@/lib/site'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -105,7 +105,7 @@ export default async function ProductPage({ params }: PageProps) {
           <figure className="product-detail__figure">
             <img
               className="product-detail__image"
-              src={product.image.src}
+              src={assetPath(product.image.src)}
               alt={product.image.alt}
               width={product.image.width}
               height={product.image.height}

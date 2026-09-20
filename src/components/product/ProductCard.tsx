@@ -11,6 +11,7 @@
  */
 
 import Link from 'next/link'
+import { assetPath } from '@/lib/site'
 import type { ProductView } from '@/data/viewModels'
 import { AUTHENTICITY_LABEL, buildProductMetaLine, resolveStockStatus } from '@/lib/labels'
 import { PriceSummary } from './PriceSummary'
@@ -39,7 +40,7 @@ export function ProductCard({ view, headingLevel: Heading = 'h3', priority = fal
       <figure className="product-card__figure">
         <img
           className="product-card__image"
-          src={product.image.src}
+          src={assetPath(product.image.src)}
           alt={product.image.alt}
           width={product.image.width}
           height={product.image.height}

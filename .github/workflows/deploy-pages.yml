@@ -1,0 +1,131 @@
+# ============================================================
+# サカモノ 開発版を GitHub Pages へ公開する
+#
+# ★このワークフローは「作って置くだけ」です。★
+#   Yahoo!や楽天のAPIへは一切アクセスしません。
+#   理由は3つあります。
+#     1. APIキーをActionsへ渡さずに済む（渡さなければ漏れない）
+#     2. 楽天はアプリ登録でIP許可リストが要る。GitHubの実行環境は
+#        IPが固定されず、週ごとに変わる数千のCIDRなので満たせない
+#     3. 無意味なAPI負荷をかけない
+#
+#   価格データの取得は、手元のPCで
+#   npm run data:yahoo:search / data:rakuten:search を実行し、
+#   生成物をコミットする方式です。
+#
+# ★.env.local はActionsへ渡しません。★
+#   このワークフローが使う環境変数は、下の env: に書いてあるものだけで、
+#   いずれも秘密情報ではありません（公開URLと置き場所のパス）。
+# ============================================================
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 手動でも流せるようにしておく（Actionsタブの Run workflow）
+  workflow_dispatch:
+
+# ★必要最小限の権限だけ。★
+#   GitHub公式のPagesデプロイに必要な3つ以外は付けません。
+#   contents は読み取りのみ。リポジトリへ書き戻しません。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 公開は1本ずつ。連続pushで追い越しが起きないようにする。
+# 進行中のものは中断しない（中途半端な公開状態を作らないため）。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: ビルドと検査
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ソースを取得
+        uses: actions/checkout@v4
+
+      - name: Node.js を用意
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 依存関係をインストール
+        # package-lock.json のとおりに入れる（ci は lock を書き換えない）
+        run: npm ci
+
+      # ★壊れたものを公開しないための関門。★
+      #   どれか1つでも落ちれば、この先のデプロイは実行されません。
+      - name: テスト
+        run: npm test
+
+      - name: 型チェック
+        run: npm run typecheck
+
+      - name: 静的サイトをビルド
+        env:
+          # ---- 置き場所 ----------------------------------------
+          # project site なので /<リポジトリ名>/ 配下になります。
+          # リポジトリ名から組み立てているので、
+          # リポジトリを改名しても直す必要はありません。
+          #
+          # ★独自ドメインへ移すときは、この2つを次のように変えます。★
+          #   NEXT_PUBLIC_BASE_PATH: ''                  （空にする）
+          #   NEXT_PUBLIC_SITE_URL:  https://example.jp  （そのドメイン）
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          # ---- 開発版か本番か ----------------------------------
+          # ★NEXT_PUBLIC_SITE_PREVIEW を設定しません。★
+          #   未設定＝開発版として扱われ、全ページ noindex になります。
+          #   本番公開すると決めたときに false を足してください。
+        run: npm run build
+
+      # public/.nojekyll がビルドで out/ へコピーされますが、
+      # 公開成果物に確実に入っていることをここでも担保します。
+      # ★_next/ はアンダースコア始まりのため、Jekyllが通ると無視されます。★
+      #   これが無いとCSSとJSが読まれない画面になります。
+      - name: .nojekyll を確認
+        run: |
+          touch out/.nojekyll
+          ls -a out/ | grep -q '^\.nojekyll$' && echo "OK: .nojekyll あり"
+
+      # ★公開する直前に、成果物へ秘密情報が混ざっていないか調べる。★
+      #   このワークフローはAPIキーを一切受け取らないので本来は入りませんが、
+      #   将来だれかが env: へ秘密を足したときに、ここで止まるようにしておきます。
+      #   一致した値そのものは表示しません（件数だけ）。
+      - name: 成果物に秘密情報が無いか確認
+        run: |
+          HITS=$(grep -rlE 'YAHOO_CLIENT_ID|RAKUTEN_APPLICATION_ID|RAKUTEN_ACCESS_KEY' out || true)
+          if [ -n "$HITS" ]; then
+            echo "::error::公開成果物に秘密情報の変数名が含まれています。公開を中止します。"
+            echo "$HITS" | sed 's/^/  /'
+            exit 1
+          fi
+          echo "OK: 秘密情報は含まれていません"
+
+      - name: Pages の設定を読み込む
+        uses: actions/configure-pages@v5
+
+      - name: 公開成果物をアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    name: 公開
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: GitHub Pages へ公開
+        id: deployment
+        uses: actions/deploy-pages@v4

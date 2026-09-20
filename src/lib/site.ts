@@ -44,6 +44,48 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://example.co
  */
 export const IS_PREVIEW = (process.env.NEXT_PUBLIC_SITE_PREVIEW ?? 'true') !== 'false'
 
+/**
+ * サイトを置く場所のパス（先頭スラッシュあり・末尾スラッシュなし）。
+ *
+ * ══════════════════════════════════════════════════════════
+ * ★ハードコードしないための1か所★
+ *
+ *   置き場所によって前に付くパスが変わります。
+ *
+ *     ローカル開発            ''            → /clubs/
+ *     GitHub Pages（project） '/sakamono'   → /sakamono/clubs/
+ *     将来の独自ドメイン       ''            → /clubs/
+ *
+ *   ★'/sakamono' をソースへ直接書かないこと。★
+ *     独自ドメインへ移したときに、書いた分だけ消して回ることになります。
+ *     置き場所を変えるのは環境変数1つで済ませます。
+ *
+ * ── next/link と /_next/ は自動 ──────────────────────
+ *   next.config.ts の basePath を設定すれば、
+ *   <Link> のリンク先と /_next/ のCSS・JSはNext.jsが自動で前置きします。
+ *   手で直す必要はありません（約1,700箇所）。
+ *
+ * ── ★自動にならないもの★ ────────────────────────────
+ *   生の <img src="/images/..."> はNext.jsの対象外です。
+ *   そこだけ assetPath() を通します。
+ * ══════════════════════════════════════════════════════════
+ */
+export const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replace(/\/+$/, '')
+
+/**
+ * public/ に置いた静的ファイルのURLを作る。
+ *
+ * ★データ側は '/images/foo.svg' のまま持たせます。★
+ *   置き場所は表示のときに決まるものなので、
+ *   fixtureや取り込み結果に '/sakamono/' を混ぜません。
+ *   データを作り直さずに引っ越せるようにするためです。
+ */
+export function assetPath(path: string): string {
+  // 外部URLやデータURIはそのまま
+  if (!path.startsWith('/')) return path
+  return `${BASE_PATH}${path}`
+}
+
 export interface NavItem {
   href: string
   label: string
