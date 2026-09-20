@@ -526,3 +526,135 @@ describe('★セット商品を単品の候補にしない★', () => {
     expect(isAutoAdoptable(result)).toBe(true)
   })
 })
+
+/* ============================================================
+ * 中古判定（第5.4段階の実データ検証で見つけた取りこぼし）
+ * ========================================================== */
+
+describe('★返品ポリシーの記載を中古と読み違えない★', () => {
+  /**
+   * 楽天の実データで、メーカー公式ストアの出品が
+   * 「返品可」という売り文句のせいで中古扱いになっていました。
+   * いちばん素性の確かな出品を落としていたことになります。
+   */
+  it('「返品可」は中古ではない', () => {
+    const result = judge(
+      '【公式】アディダス adidas 返品可 サッカー リバプールFC 25/26 ホーム レプリカユニフォーム パフォーマンス ユニセックス ウェア・服 ユニフォーム 赤 レッド JV6423',
+      { priceJpy: 10_560 },
+    )
+
+    expect(result.hardRejectCodes).not.toContain('usedCondition')
+    expect(result.hardReject).toBe(false)
+  })
+
+  it('「返品不可」「返品交換無料」も中古ではない', () => {
+    for (const title of [
+      'リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423 返品不可',
+      'リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423 返品交換無料',
+    ]) {
+      expect(judge(title).hardRejectCodes).not.toContain('usedCondition')
+    }
+  })
+
+  it('★実際に返品された品（返品品・返品商品）は除外する★', () => {
+    for (const title of [
+      '【返品品】リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423',
+      '返品商品 リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423',
+    ]) {
+      expect(judge(title).hardRejectCodes).toContain('usedCondition')
+    }
+  })
+
+  it('中古・訳あり・ジャンクはこれまでどおり除外する', () => {
+    for (const title of [
+      '【中古】リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423',
+      'リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423 訳あり',
+      'ジャンク リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423',
+    ]) {
+      expect(judge(title).hardRejectCodes).toContain('usedCondition')
+    }
+  })
+})
+
+/* ============================================================
+ * 選手名だけの表記（第5.4段階の実データ検証で見つけた誤一致リスク）
+ * ========================================================== */
+
+describe('★背番号なしの選手名を見落とさない★', () => {
+  /**
+   * 楽天の出品者はスラッシュ区切りで姓だけを書きます。
+   *   adidas/25/26リバプール/ホーム/長袖/サラー/パッチ付/JYF51-JV6456
+   * 背番号も「マーキング」の語も無いため、
+   * 書き方だけを見る判定では無地として通過していました。
+   * ★無地 ¥10,010 に対して、この出品は ¥22,330 です。★
+   */
+  const slashStyleTitles = [
+    '(アディダス) adidas/25/26リバプール/ホーム/半袖/サラー/JYF22-JV6423',
+    '(アディダス) adidas/25/26リバプール/ホーム/半袖/ファンダイク/JYF22-JV6423',
+    'adidas 25/26 リバプール ホーム 半袖 ソボスライ JYF22-JV6423',
+  ]
+
+  for (const title of slashStyleTitles) {
+    it(`選手名だけの表記を無地の候補にしない: ${title.slice(-30)}`, () => {
+      const result = judge(title, { priceJpy: 22_330 })
+
+      expect(result.hardReject).toBe(true)
+      expect(result.hardRejectCodes).toContain('personalizationMismatch')
+      expect(isAutoAdoptable(result)).toBe(false)
+    })
+  }
+
+  it('★そのクラブの選手名だけを見る（他クラブの選手名では反応しない）★', () => {
+    // リヴァプールの商品に、レアルの選手名が書かれていても
+    // マーキングの判定には使わない（クラブ違いは別の仕組みで弾く）
+    const title = 'リバプール 25/26 ホーム 半袖 レプリカ adidas JV6423 ベリンガム好きにも'
+    const result = judge(title)
+    expect(result.hardRejectCodes).not.toContain('personalizationMismatch')
+  })
+
+  it('★無地の実データを選手名入りと誤検出しない★', () => {
+    const plainTitles = [
+      '(アディダス) adidas/25/26リバプール/ホーム/長袖/JYF51-JV6456',
+      'アディダス 25-26 リバプールFC ホームレプリカ ユニフォーム 長袖 大人用 サッカー レプリカシャツ adidas JYF51-JV6456',
+      '【公式】アディダス adidas 返品可 サッカー リバプールFC 25/26 ホーム レプリカユニフォーム パフォーマンス ユニセックス ウェア・服 ユニフォーム 赤 レッド JV6423',
+    ]
+
+    for (const title of plainTitles) {
+      const result = evaluateMatch(
+        contextFor(baseProduct({ sleeve: title.includes('長袖') ? 'long' : 'short' })),
+        candidateFor(title, { priceJpy: 10_010 }),
+      )
+      expect(result.hardRejectCodes).not.toContain('personalizationMismatch')
+      expect(result.hardRejectCodes).not.toContain('usedCondition')
+    }
+  })
+})
+
+describe('★ワッペン付き・特別仕様は自動採用しない★', () => {
+  it('「パッチ付」は人の確認へ回す', () => {
+    const result = judge(
+      'アディダス 25-26 リバプールFC ホーム 半袖 レプリカ プレミア優勝+No Room For Racismパッチ付 adidas JYF22-JV6423',
+      { priceJpy: 20_790 },
+    )
+
+    expect(result.requiresReview).toBe(true)
+    expect(result.reviewReasons.some((reason) => reason.includes('ワッペン'))).toBe(true)
+    expect(isAutoAdoptable(result)).toBe(false)
+  })
+
+  it('「WSL仕様」も人の確認へ回す', () => {
+    const result = judge(
+      'アディダス 25-26 リバプールFC【WSL仕様】ホーム 半袖 レプリカ adidas JYF22-JV6423',
+    )
+    expect(result.requiresReview).toBe(true)
+    expect(isAutoAdoptable(result)).toBe(false)
+  })
+
+  it('普通の出品はこれまでどおり採用できる', () => {
+    const result = judge(
+      'リバプール 25-26 ホーム 半袖レプリカユニフォーム　【adidas|アディダス】クラブチームレプリカウェアーjyf22-jv6423',
+      { priceJpy: 7_920 },
+    )
+    expect(isAutoAdoptable(result)).toBe(true)
+  })
+})

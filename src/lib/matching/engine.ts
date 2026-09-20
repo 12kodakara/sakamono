@@ -57,6 +57,8 @@ import {
   looksLikeBundle,
   manufacturerAliases,
   playerAliases,
+  squadTerms,
+  SPEC_VARIANT_TERMS,
 } from './aliases'
 import {
   containsAnyTerm,
@@ -636,11 +638,14 @@ export function targetPersonalization(product: Product): Personalization {
  */
 function judgePersonalization(
   product: Product,
+  clubSlug: string,
   titlePadded: string,
   titleLight: string,
 ): MatchSignal {
   const target = targetPersonalization(product)
-  const detected = classifyPersonalization(titlePadded, titleLight)
+  // ★そのクラブの選手名も手掛かりにする。★
+  //   楽天では背番号なしで姓だけ書かれることがあるため。
+  const detected = classifyPersonalization(titlePadded, titleLight, squadTerms(clubSlug))
 
   if (target === 'unknown' || detected === 'unknown') {
     return {
@@ -802,7 +807,7 @@ export function evaluateMatch(context: MatchContext, candidate: MatchCandidate):
     judgeAuthenticity(product, titlePadded),
     judgeGender(product, titlePadded),
     judgeSleeve(product, titlePadded, titleLight),
-    judgePersonalization(product, titlePadded, titleLight),
+    judgePersonalization(product, clubSlug, titlePadded, titleLight),
     judgeBundle(titlePadded),
     judgeCondition(candidate, titlePadded),
     judgePrice(candidate, context),
@@ -867,6 +872,17 @@ export function evaluateMatch(context: MatchContext, candidate: MatchCandidate):
       confidence = Math.min(confidence, REVIEW_CAP_CONFIDENCE)
     }
 
+    // ★ワッペン付き・特別仕様は別商品の可能性がある。★
+    //   第5.4段階の実データで見つけた書き方です。
+    //     「プレミア優勝+No Room For Racismパッチ付」
+    //     「【WSL仕様】」
+    //   ワッペンが付くと数千円変わります。ただしサカモノ側の商品が
+    //   「ワッペン無し」と確定しているわけではないので、
+    //   不採用にはせず自動採用だけ止めます。
+    if (containsAnyTerm(titlePadded, SPEC_VARIANT_TERMS)) {
+      reviewReasons.push('ワッペン付きや特別仕様の記載があります（別商品の可能性）')
+      confidence = Math.min(confidence, REVIEW_CAP_CONFIDENCE)
+    }
     // マーキングの状態を読み取れないもの（「マーキング対応」等）
     if (verdictOf('marking') === 'unknown') {
       reviewReasons.push('マーキング（選手名・背番号）の有無を確認できていません')

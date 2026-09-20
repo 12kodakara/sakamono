@@ -380,6 +380,15 @@ export function hasMarkingIndicator(normalizedTitle: string): boolean {
 export function classifyPersonalization(
   titlePadded: string,
   titleLight: string,
+  /**
+   * そのクラブの選手名（任意）。
+   *
+   * ★背番号なしで姓だけ書かれる出品を拾うために使います。★
+   *   楽天の実データで見つかった書き方です。
+   *     adidas/25/26リバプール/ホーム/長袖/サラー/パッチ付/JYF51-JV6456
+   *   渡さなければ、これまでどおり背番号の書き方だけで判定します。
+   */
+  squad: readonly string[] = [],
 ): 'plain' | 'player-marked' | 'personalized' | 'unknown' {
   // 1. 名入れ（購入者が指定するもの）
   if (PERSONALIZED_TERMS.some((term) => containsTerm(titlePadded, term))) return 'personalized'
@@ -394,10 +403,13 @@ export function classifyPersonalization(
   if (PLAYER_MARKED_TERMS.some((term) => containsTerm(titlePadded, term))) return 'player-marked'
   if (hasMarkingIndicator(titleLight)) return 'player-marked'
 
-  // 4. マーキングに関する語はあるが、状態までは読み取れない
+  // 4. そのクラブの選手名が入っている（背番号が無くても選手名入り）
+  if (squad.some((term) => containsTerm(titlePadded, term))) return 'player-marked'
+
+  // 5. マーキングに関する語はあるが、状態までは読み取れない
   if (MARKING_TERMS.some((term) => containsTerm(titlePadded, term))) return 'unknown'
 
-  // 5. 何も書かれていなければ無地とみなす
+  // 6. 何も書かれていなければ無地とみなす
   return 'plain'
 }
 
@@ -430,6 +442,190 @@ export function playerAliases(player: string): readonly string[] {
   return parts.length > 1 ? [player, ...parts] : [player]
 }
 
+/**
+ * クラブごとの選手名。
+ *
+ * ══════════════════════════════════════════════════════════
+ * ★なぜ必要になったか（第5.4段階の実データ検証）★
+ *
+ *   楽天の出品者は、こういう書き方をします。
+ *
+ *     adidas/25/26リバプール/ホーム/長袖/サラー/パッチ付/JYF51-JV6456
+ *
+ *   背番号も「マーキング」の語もありません。姓だけです。
+ *   書き方から選手名を見つける仕組み（No.11 / #7 / 7.選手名）では
+ *   拾えず、無地の商品として通過していました。
+ *   ★無地 ¥10,010 に対して、この出品は ¥22,330 です。★
+ *
+ * ★使い方を「そのクラブの選手だけ」に絞っています。★
+ *   全クラブ分をまとめて探すと、他クラブの選手名が
+ *   たまたま含まれる商品名で誤検出します。
+ *   クラブが分かっている照合の中でだけ引きます。
+ *
+ * ★年に一度は見直してください。★
+ *   移籍で必ず古くなります。古い名前が残っていても
+ *   「入っていない選手名を探す」だけなので実害は小さいですが、
+ *   新加入の選手は拾えません。
+ *
+ * ★短い名前は入れないこと。★
+ *   例えばトッテナムの「ソン」を入れると、
+ *   「ロビンソン」「クリムゾン」のような語の一部に当たります。
+ *   カタカナは3文字以上、迷うものは省いています。
+ *   拾えない選手がいても、それは取りこぼし（あとで直せる）です。
+ *   誤検出は嘘の価格を見せることになるので、そちら側へは倒しません。
+ * ══════════════════════════════════════════════════════════
+ */
+export const CLUB_SQUAD_TERMS: Record<string, readonly string[]> = {
+  // ★実データ（Yahoo!・楽天）の商品名で実際に確認できた名前を中心にしています。★
+  liverpool: [
+    'サラー',
+    'モハメド・サラー',
+    'salah',
+    'ファンダイク',
+    'ファン・ダイク',
+    'van dijk',
+    'ソボスライ',
+    'szoboszlai',
+    'ヴィルツ',
+    'ウィルツ',
+    'wirtz',
+    'エキティケ',
+    'ekitike',
+    '遠藤航',
+    'ケルケズ',
+    'kerkez',
+    'マックアリスター',
+    'マック・アリスター',
+    'mac allister',
+    'イサク',
+    'isak',
+    'キエーザ',
+    'chiesa',
+    'ロバートソン',
+    'robertson',
+    'アリソン',
+    'alisson',
+    'ガクポ',
+    'gakpo',
+    'コナテ',
+    'konate',
+    'フリンポン',
+    'frimpong',
+    'ブラッドリー',
+    'エリオット',
+    'elliott',
+  ],
+  tottenham: [
+    'マディソン',
+    'maddison',
+    'ロメロ',
+    'romero',
+    'ヴィカーリオ',
+    'ビカーリオ',
+    'vicario',
+    'ソランケ',
+    'solanke',
+    'クルゼフスキ',
+    'kulusevski',
+    'ベンタンクール',
+    'bentancur',
+    'ファンデフェン',
+    'ファン・デ・フェン',
+    'van de ven',
+    'ジョンソン',
+    'ポロ',
+    'テルツマン',
+    'ダンソ',
+  ],
+  'fc-barcelona': [
+    'ヤマル',
+    'ラミン・ヤマル',
+    'yamal',
+    'レヴァンドフスキ',
+    'レワンドフスキ',
+    'lewandowski',
+    'ペドリ',
+    'pedri',
+    'デヨング',
+    'デ・ヨング',
+    'de jong',
+    'ラフィーニャ',
+    'raphinha',
+    'クンデ',
+    'kounde',
+    'テアシュテーゲン',
+    'ter stegen',
+    'バルデ',
+    'クバルシ',
+    'オルモ',
+    'トーレス',
+  ],
+  'real-madrid': [
+    'ベリンガム',
+    'bellingham',
+    'ムバッペ',
+    'エムバペ',
+    'mbappe',
+    'ヴィニシウス',
+    'ビニシウス',
+    'vinicius',
+    'ロドリゴ',
+    'rodrygo',
+    'クルトワ',
+    'courtois',
+    'リュディガー',
+    'rudiger',
+    'バルベルデ',
+    'valverde',
+    'チュアメニ',
+    'tchouameni',
+    'カマヴィンガ',
+    'camavinga',
+    'アラバ',
+    'カルバハル',
+    'ギュレル',
+    'エンドリック',
+  ],
+}
+
+/**
+ * そのクラブの選手名の一覧。未登録のクラブなら空。
+ *
+ * ★空でも構いません。★
+ *   登録が無ければ、これまでどおり背番号の書き方だけで判定します。
+ *   拾えないより、間違えないほうが大事です。
+ */
+export function squadTerms(clubSlug: string): readonly string[] {
+  return CLUB_SQUAD_TERMS[clubSlug] ?? []
+}
+
+/**
+ * 商品の仕様が違うことを示す言葉。
+ *
+ * ★第5.4段階の実データで見つけたものです。★
+ *
+ *   「プレミア優勝+No Room For Racismパッチ付」
+ *   「【WSL仕様】」
+ *
+ *   ワッペンが付くと別商品・別価格になります（数千円変わります）。
+ *   WSL仕様は女子リーグ向けで、これも別物です。
+ *
+ * ★不採用にはせず、人の確認へ回します。★
+ *   サカモノ側の商品が「ワッペン無し」と確定しているわけではないため、
+ *   別商品と断定はできません。自動採用だけを止めます。
+ */
+export const SPEC_VARIANT_TERMS: readonly string[] = [
+  'パッチ付',
+  'パッチ装着',
+  'ワッペン付',
+  'wsl仕様',
+  'cup戦仕様',
+  'カップ戦仕様',
+  'リーグ戦仕様',
+  'cl仕様',
+  'ucl仕様',
+]
+
 /* ------------------------------------------------------------
  * 状態（新品 / 中古）
  * ---------------------------------------------------------- */
@@ -452,7 +648,17 @@ export const USED_TERMS: readonly string[] = [
   'b品',
   '難あり',
   '傷あり',
-  '返品',
+  // ★「返品」だけを入れてはいけません。★
+  //   第5.4段階の実データ検証で見つけた取りこぼしです。
+  //
+  //   「【公式】アディダス … 返品可 … リバプールFC 25/26 ホーム …」
+  //
+  //   この「返品可」は返品を受け付けるという売り文句で、
+  //   中古とは正反対の意味です。しかも除外してしまったのは
+  //   いちばん素性の確かなメーカー公式ストアの出品でした。
+  //   実際に返品された品を指すのは「返品品」「返品商品」の形です。
+  '返品品',
+  '返品商品',
 ]
 
 /** 新品であることを示す言葉。 */
