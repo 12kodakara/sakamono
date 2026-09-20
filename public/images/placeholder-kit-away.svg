@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-hidden="true">
+  <rect width="800" height="800" fill="#f6f7f8"/>
+  <g fill="#eef1f4" stroke="#b9c1c9" stroke-width="6" stroke-linejoin="round">
+    <path d="M320 170 L250 205 L170 300 L245 365 L272 335 L272 640 Q400 664 528 640 L528 335 L555 365 L630 300 L550 205 L480 170 Q400 236 320 170 Z"/>
+  </g>
+  <path d="M320 170 Q400 236 480 170" fill="none" stroke="#b9c1c9" stroke-width="6"/>
+  <text x="400" y="470" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="46" font-weight="700" fill="#8b949e">AWAY</text>
+  <text x="400" y="722" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="30" fill="#98a1ab">SAMPLE IMAGE</text>
+</svg>

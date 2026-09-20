@@ -1,0 +1,1627 @@
+/* ============================================================
+ * サカモノ スタイルシート
+ *
+ * 方針:
+ *  - CSSはこの1ファイルにまとめる。小規模なうちは、探す場所が1つの方が保守しやすい。
+ *  - 色・余白・文字サイズは必ず先頭の「デザイントークン」を使う。
+ *    直接 #xxxxxx や 13px と書かない。あとで全体を変えられなくなるため。
+ *  - 装飾より情報の読み取りやすさを優先する。
+ *    影・グラデーション・大きな角丸は使わない。
+ *  - セクションの並びは下の目次のとおり。
+ *
+ * 目次:
+ *   01. デザイントークン
+ *   02. リセットと基本
+ *   03. レイアウト
+ *   04. ヘッダー / ナビゲーション
+ *   05. フッター
+ *   06. ファーストビュー / 検索
+ *   07. 見出し・セクション
+ *   08. ボタン・リンク
+ *   09. バッジ・タグ
+ *   10. 商品カード
+ *   11. 価格表示
+ *   12. クラブ・リーグ一覧
+ *   13. 商品詳細ページ
+ *   14. お知らせ・注意書き
+ *   15. その他
+ *   16. 価格比較（第2段階で追加）
+ *   17. 第3段階で追加
+ *   18. 第4段階で追加
+ * ========================================================== */
+
+/* ------------------------------------------------------------
+ * 01. デザイントークン
+ * ---------------------------------------------------------- */
+
+:root {
+  /* 色 --------------------------------------------------- */
+  --color-bg: #ffffff;
+  --color-surface: #f6f7f8;
+  --color-surface-strong: #eceff1;
+  --color-border: #dde1e6;
+  --color-border-strong: #c3cad2;
+
+  --color-text: #1b1f24;
+  --color-text-muted: #59616b;
+  /* 白背景に対するコントラスト比 4.8:1（WCAG AA の 4.5:1 を満たす） */
+  --color-text-faint: #6b7280;
+
+  /* ブランドカラー（ピッチの緑） */
+  --color-primary: #0f5f4a;
+  --color-primary-dark: #0a4234;
+  --color-primary-light: #e6f1ee;
+
+  /* 価格に関する色 */
+  --color-sale: #c62828; /* 値下げ・「安い」の強調 */
+  --color-sale-bg: #fdeceb;
+  --color-caution: #8a5a00; /* 「推定」など注意を促す文字 */
+  --color-caution-bg: #fdf6e3;
+
+  --color-focus: #0b57d0;
+
+  /* 文字 ------------------------------------------------- */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans',
+    'Noto Sans JP', Meiryo, system-ui, sans-serif;
+  --font-numeric: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.8125rem; /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-md: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.375rem; /* 22px */
+  --text-2xl: 1.75rem; /* 28px */
+
+  /* 余白 ------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* その他 ----------------------------------------------- */
+  --radius: 4px;
+  --radius-lg: 8px;
+  --container-width: 1120px;
+  --header-height: 60px;
+}
+
+/* ------------------------------------------------------------
+ * 02. リセットと基本
+ * ---------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.7;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* キーボード操作時のフォーカスを必ず見えるようにする */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 画面には出さないが読み上げソフトには伝える文字 */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* キーボードでページを開いたとき最初に出る「本文へ移動」リンク */
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -200px;
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius);
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+/* ------------------------------------------------------------
+ * 03. レイアウト
+ * ---------------------------------------------------------- */
+
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.page-main {
+  flex: 1 0 auto;
+}
+
+/*
+ * ページ本文の枠。
+ * ファーストビュー（.hero）のように画面幅いっぱいに広げたい要素は
+ * この外側へ置くため、余白は .page-main ではなくこちらで付けている。
+ */
+.page-body {
+  padding-block: var(--space-6);
+}
+
+/* パンくず */
+.breadcrumb {
+  padding-block: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.breadcrumb li:not(:last-child)::after {
+  content: '›';
+  margin-left: var(--space-2);
+  color: var(--color-text-faint);
+}
+
+.breadcrumb a:hover {
+  color: var(--color-primary);
+}
+
+/* ------------------------------------------------------------
+ * 04. ヘッダー / ナビゲーション
+ * ---------------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--header-height);
+}
+
+.site-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.site-logo__name {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+
+.site-logo__tagline {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+
+.site-nav {
+  margin-left: auto;
+}
+
+.site-nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.site-nav__link {
+  display: inline-block;
+  padding: var(--space-2) 0;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  color: var(--color-text);
+  border-bottom: 2px solid transparent;
+}
+
+.site-nav__link:hover {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* ヘッダー内の検索 */
+.header-search {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.header-search__input {
+  width: 180px;
+  padding: 6px var(--space-3);
+  font-size: var(--text-sm);
+  border: 1px solid var(--color-border-strong);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  background: var(--color-bg);
+}
+
+.header-search__button {
+  padding: 6px var(--space-3);
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+
+.header-search__button:hover {
+  background: var(--color-primary-dark);
+}
+
+/*
+ * スマートフォン用メニュー。
+ * JavaScriptを足さずに済むよう <details>/<summary> の開閉を使っている。
+ * キーボード操作・読み上げソフトにもブラウザ標準の動作がそのまま効く。
+ */
+.mobile-menu {
+  display: none;
+  margin-left: auto;
+}
+
+.mobile-menu__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.mobile-menu__toggle::-webkit-details-marker {
+  display: none;
+}
+
+.mobile-menu__bars {
+  display: grid;
+  gap: 3px;
+}
+
+.mobile-menu__bars span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  background: var(--color-text);
+}
+
+.mobile-menu__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.mobile-menu__list {
+  display: grid;
+}
+
+.mobile-menu__list a {
+  display: block;
+  padding: var(--space-3) var(--space-1);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-menu__list a:hover {
+  color: var(--color-primary);
+}
+
+.mobile-menu__search {
+  display: flex;
+  margin-top: var(--space-4);
+}
+
+.mobile-menu__search input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.mobile-menu__search button {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------
+ * 05. フッター
+ * ---------------------------------------------------------- */
+
+.site-footer {
+  flex-shrink: 0;
+  margin-top: var(--space-6);
+  padding-block: var(--space-6);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+}
+
+.site-footer__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-5);
+}
+
+.site-footer__heading {
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
+}
+
+.site-footer__list a {
+  display: inline-block;
+  padding-block: 3px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.site-footer__list a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.site-footer__note {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.8;
+}
+
+/* ------------------------------------------------------------
+ * 06. ファーストビュー / 検索
+ * ---------------------------------------------------------- */
+
+.hero {
+  background: var(--color-primary-light);
+  border-bottom: 1px solid var(--color-border);
+  padding-block: var(--space-6);
+}
+
+.hero__title {
+  font-size: var(--text-2xl);
+  color: var(--color-primary-dark);
+}
+
+.hero__lead {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+}
+
+.search-form {
+  display: flex;
+  margin-top: var(--space-5);
+  max-width: 560px;
+}
+
+.search-form__input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-md);
+  border: 1px solid var(--color-border-strong);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  background: var(--color-bg);
+}
+
+.search-form__button {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: #fff;
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-form__button:hover {
+  background: var(--color-primary-dark);
+}
+
+/* ------------------------------------------------------------
+ * 07. 見出し・セクション
+ * ---------------------------------------------------------- */
+
+.section {
+  margin-top: var(--space-7);
+}
+
+.section:first-of-type {
+  margin-top: 0;
+}
+
+.section__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--color-primary);
+  margin-bottom: var(--space-4);
+}
+
+.section__title {
+  font-size: var(--text-xl);
+}
+
+.section__description {
+  width: 100%;
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.section__more {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section__more:hover {
+  text-decoration: underline;
+}
+
+.page-title {
+  font-size: var(--text-2xl);
+}
+
+.page-lead {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------------------
+ * 08. ボタン・リンク
+ * ---------------------------------------------------------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-base);
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.button--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.button--primary:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.button--outline {
+  background: var(--color-bg);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.button--outline:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.button--block {
+  width: 100%;
+}
+
+.text-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.text-link:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ------------------------------------------------------------
+ * 09. バッジ・タグ
+ * ---------------------------------------------------------- */
+
+.badge {
+  display: inline-block;
+  padding: 1px var(--space-2);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  white-space: nowrap;
+}
+
+.badge--sale {
+  color: #fff;
+  background: var(--color-sale);
+  border-color: var(--color-sale);
+  font-weight: 700;
+}
+
+.badge--authentic {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-light);
+}
+
+.badge--out-of-stock {
+  color: var(--color-text-faint);
+  background: var(--color-surface-strong);
+  border-color: var(--color-surface-strong);
+}
+
+.badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+}
+
+/* ------------------------------------------------------------
+ * 10. 商品カード
+ * ---------------------------------------------------------- */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--space-4);
+}
+
+/* 同じ行のカードの高さをそろえ、「商品を見る」の位置を合わせる */
+.product-grid > li {
+  display: flex;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.product-card:hover {
+  border-color: var(--color-border-strong);
+}
+
+.product-card__figure {
+  position: relative;
+  margin: 0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.product-card__image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+.product-card__figure-badges {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  display: flex;
+  gap: var(--space-1);
+}
+
+.product-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  flex: 1;
+}
+
+.product-card__club {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.product-card__name {
+  font-size: var(--text-base);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.product-card__name a {
+  text-decoration: none;
+}
+
+.product-card__name a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.product-card__meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.product-card__footer {
+  margin-top: auto;
+  padding-top: var(--space-1);
+}
+
+/* ------------------------------------------------------------
+ * 11. 価格表示
+ * ---------------------------------------------------------- */
+
+/* カード内の価格まとめ */
+.price-summary {
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+.price-summary__rows {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.price-row__label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.price-row__value {
+  margin: 0;
+  font-family: var(--font-numeric);
+  font-size: var(--text-base);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 日本到着推定額は最も目立たせる */
+.price-row--landed {
+  align-items: center;
+  padding-block: var(--space-1);
+  border-block: 1px solid var(--color-border);
+}
+
+.price-row--landed .price-row__label {
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+}
+
+.price-row--landed .price-row__value {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.price-row__value--struck {
+  color: var(--color-text-faint);
+  text-decoration: line-through;
+  font-size: var(--text-xs);
+}
+
+/* 「推定」であることを示す小さな注記 */
+.estimate-mark {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--color-caution);
+  white-space: nowrap;
+}
+
+/* 価格差の帯 */
+/*
+ * 価格差の帯。
+ * flex ではなく通常の文章として組む。そうしないと狭い画面で
+ * 「国内よ／り」のように語の途中で折り返されてしまう。
+ */
+.price-gap {
+  margin-top: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.price-gap--overseas {
+  color: var(--color-sale);
+  background: var(--color-sale-bg);
+}
+
+.price-gap--domestic {
+  color: var(--color-text-muted);
+  background: var(--color-surface-strong);
+}
+
+.price-gap--even {
+  color: var(--color-text-muted);
+  background: var(--color-surface-strong);
+}
+
+.price-gap__amount {
+  /* 金額の途中では絶対に折り返さない */
+  white-space: nowrap;
+  margin-inline: 2px;
+  font-family: var(--font-numeric);
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 比較できない場合の説明 */
+.price-gap--unavailable {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--color-text-faint);
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------
+ * 12. クラブ・リーグ一覧
+ * ---------------------------------------------------------- */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+
+.club-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  background: var(--color-bg);
+}
+
+.club-card:hover {
+  border-color: var(--color-primary);
+}
+
+/*
+ * クラブのエンブレムは権利確認が済んでいないため使用しない。
+ * 代わりに頭文字とクラブカラーの帯で見分けられるようにしている。
+ */
+.club-card__mark {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--text-md);
+  background: var(--club-color, var(--color-primary));
+}
+
+.club-card__text {
+  min-width: 0;
+}
+
+/* span を縦に積むため、明示的にブロック要素として扱う */
+.club-card__name {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.club-card__meta {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.league-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius);
+  text-decoration: none;
+  background: var(--color-bg);
+}
+
+.league-card:hover {
+  background: var(--color-surface);
+}
+
+.league-card__name {
+  display: block;
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+
+.league-card__name-en {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.league-card__meta {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------------------
+ * 13. 商品詳細ページ
+ * ---------------------------------------------------------- */
+
+.product-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.product-detail__figure {
+  margin: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.product-detail__image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+.product-detail__title {
+  font-size: var(--text-xl);
+  margin-top: var(--space-1);
+}
+
+.product-detail__club {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.product-detail__club a {
+  color: var(--color-primary);
+}
+
+/* 価格の内訳表 */
+.breakdown {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-base);
+}
+
+.breakdown caption {
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: var(--space-2);
+}
+
+.breakdown th,
+.breakdown td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+/* 項目名は折り返してよい。狭い画面で表からはみ出させないため */
+.breakdown th {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* 金額は途中で折り返さない（「18,778」と「円」が分かれないように） */
+.breakdown td {
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown__total th,
+.breakdown__total td {
+  border-top: 2px solid var(--color-border-strong);
+  border-bottom: none;
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+
+.breakdown__note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-2);
+  line-height: 1.8;
+}
+
+/* 仕様の一覧 */
+.spec-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.spec-list dt {
+  color: var(--color-text-muted);
+}
+
+.spec-list dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+/* 価格推移の枠（第2段階でグラフを入れる場所） */
+.price-history {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.price-history__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 140px;
+  padding-top: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.price-history__bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.price-history__bar span {
+  display: block;
+  background: var(--color-primary-light);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 2px 2px 0 0;
+}
+
+.price-history__labels {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.price-history__labels li {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------
+ * 14. お知らせ・注意書き
+ * ---------------------------------------------------------- */
+
+/* サンプルデータ表示中であることを知らせる帯 */
+.sample-banner {
+  background: var(--color-caution-bg);
+  border-bottom: 1px solid #e8d9a8;
+  color: var(--color-caution);
+  font-size: var(--text-sm);
+  padding-block: var(--space-2);
+}
+
+.sample-banner strong {
+  font-weight: 700;
+}
+
+.notice {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  line-height: 1.9;
+}
+
+.notice__title {
+  font-size: var(--text-md);
+  margin-bottom: var(--space-2);
+}
+
+.notice ul {
+  list-style: disc;
+  padding-left: 1.2em;
+}
+
+.empty-state {
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+}
+
+/* ------------------------------------------------------------
+ * 15. その他
+ * ---------------------------------------------------------- */
+
+/* サイトの特徴（4項目） */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.feature {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.feature__title {
+  font-size: var(--text-md);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.feature__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.prose {
+  max-width: 44rem;
+}
+
+.prose h2 {
+  font-size: var(--text-lg);
+  margin-top: var(--space-6);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.prose h3 {
+  font-size: var(--text-md);
+  margin-top: var(--space-5);
+}
+
+.prose p,
+.prose ul {
+  margin-top: var(--space-3);
+}
+
+.prose ul {
+  list-style: disc;
+  padding-left: 1.4em;
+}
+
+.prose li {
+  margin-top: var(--space-1);
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.stack--lg {
+  gap: var(--space-6);
+}
+
+/* ------------------------------------------------------------
+ * レスポンシブ
+ *
+ * タブレット（〜900px）・スマートフォン（〜640px）で確認する。
+ * 商品カードの価格が潰れないよう、狭い画面では1〜2列にする。
+ * 横スクロール前提のレイアウトは使わない。
+ * ---------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .site-nav,
+  .header-search {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+
+  .product-detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .product-detail__figure {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --text-2xl: 1.5rem;
+    --text-xl: 1.25rem;
+  }
+
+  .page-body {
+    padding-block: var(--space-5);
+  }
+
+  .hero {
+    padding-block: var(--space-5);
+  }
+
+  .search-form {
+    margin-top: var(--space-4);
+  }
+
+  .search-form__button {
+    padding-inline: var(--space-4);
+  }
+
+  /* 2列でも価格行が読めるよう、カードの最小幅を下げる */
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .price-summary {
+    padding: var(--space-2);
+  }
+
+  .price-row {
+    /* 値が長いときは折り返して縦に積む（潰れて読めなくなるのを防ぐ） */
+    flex-wrap: wrap;
+  }
+
+  .price-row__value {
+    text-align: left;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .spec-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .spec-list dt {
+    margin-top: var(--space-2);
+    font-size: var(--text-xs);
+  }
+}
+
+/* 動きを減らす設定にしている人には遷移効果を出さない */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------
+ * 16. 価格比較（第2段階で追加）
+ *
+ * 方針:
+ *  - 状態（確定／推定／かからない／不明）は必ず文字で示す。
+ *    色は補助であって、色だけで意味を伝えない。
+ *  - 「海外価格」「日本到着推定」「国内価格」「価格差」が
+ *    見た目で混ざらないよう、価格差だけ枠で囲んで区別する。
+ * ---------------------------------------------------------- */
+
+/* 項目の状態を示す小さな印 */
+.fixed-mark {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.unknown-mark {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-caution);
+  white-space: nowrap;
+}
+
+/* 内訳表の補足行 */
+.breakdown__sub {
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+
+/* 金額が出せない欄 */
+.breakdown__unknown {
+  color: var(--color-caution);
+  font-weight: 700;
+}
+
+/* 金額ではない値の欄（信頼度など）は右寄せにしない */
+.breakdown__text {
+  text-align: left !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* 注意を促す一文 */
+.alert-note {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid #e8d9a8;
+  border-left: 4px solid var(--color-caution);
+  border-radius: var(--radius);
+  background: var(--color-caution-bg);
+  color: var(--color-caution);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+/* 除外理由の一覧 */
+.reason-list {
+  list-style: disc;
+  padding-left: 1.2em;
+  margin: var(--space-1) 0;
+}
+
+.reason-list li {
+  margin-top: 2px;
+}
+
+/* 海外公式 / 日本国内 の2枚並び */
+.price-panels {
+  display: grid;
+  /* 内訳表の項目名が潰れるので、十分な幅が取れるまで2列にしない */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.price-panel {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-width: 0;
+}
+
+.price-panel__title {
+  font-size: var(--text-md);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+/* 比較結果 */
+.comparison {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.comparison__rows {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.comparison__result {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  font-size: var(--text-md);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.comparison__result--overseas {
+  color: var(--color-sale);
+  background: var(--color-sale-bg);
+  border: 1px solid #f3c9c6;
+}
+
+.comparison__result--domestic,
+.comparison__result--even {
+  color: var(--color-text);
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-border-strong);
+}
+
+.comparison__amount {
+  white-space: nowrap;
+  margin-inline: 2px;
+  font-family: var(--font-numeric);
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.comparison__rate {
+  margin-left: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+/* 価格履歴の数値まとめ */
+.history-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+.history-stats__item {
+  min-width: 0;
+}
+
+.history-stats dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.history-stats dd {
+  margin: 0;
+  font-family: var(--font-numeric);
+  font-size: var(--text-base);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .price-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .price-panel {
+    padding: var(--space-3);
+  }
+
+  .comparison__amount {
+    font-size: var(--text-lg);
+  }
+}
+
+/* ------------------------------------------------------------
+ * 17. 第3段階で追加
+ * ---------------------------------------------------------- */
+
+/* 「分かっていない」ことを示すバッジ。在庫切れとは別の見た目にする。 */
+.badge--unknown {
+  color: var(--color-caution);
+  background: var(--color-caution-bg);
+  border-color: #e8d9a8;
+  font-weight: 700;
+}
+
+/* 公開前のデータを表示しているときの帯 */
+.sample-banner--unpublished {
+  background: #fdecea;
+  border-bottom-color: #f3c9c6;
+  color: #9b2c2c;
+}
+
+/* ------------------------------------------------------------
+ * 18. 第4段階で追加
+ * ---------------------------------------------------------- */
+
+/*
+ * 実際に取得したデータであることを示すバッジ。
+ * 開発用データ（badge--unknown）と見た目をはっきり分ける。
+ */
+.badge--live {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-light);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------
+ * 開発用の確認表示（第4.6段階）
+ *
+ * ★公開画面には出ません。★
+ *   process.env.NODE_ENV で本番ビルドからは取り除かれます。
+ *   照合の根拠を追うためのものなので、目立たせすぎず、
+ *   本来の情報の邪魔にならない見た目にしています。
+ * ---------------------------------------------------------- */
+.dev-note {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.dev-note > summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.dev-note p {
+  margin: var(--space-2) 0 0;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------
+ * 提供元ごとの国内価格（第5段階）
+ *
+ * Yahoo!ショッピングと楽天市場の最安を並べて、
+ * 「本当に最安か」を利用者が確かめられるようにする。
+ * ★情報を増やしすぎないよう、金額だけの簡素な並びにしている。★
+ * ---------------------------------------------------------- */
+.source-prices {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.source-prices__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.source-prices__row:last-of-type {
+  border-bottom: none;
+}
+
+.source-prices__name {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.source-prices__value {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.source-prices .breakdown__note {
+  margin-top: var(--space-2);
+}

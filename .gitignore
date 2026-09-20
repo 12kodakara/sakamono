@@ -1,0 +1,40 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts.bak
+*.tsbuildinfo
+
+# 環境変数（秘密情報はコミットしない）
+.env
+.env.local
+.env.*.local
+
+# 第2段階で外部から取得した生データの置き場（コミットしない）
+/data-cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# 第3段階で追加 ------------------------------------------------
+# 外部から入手した生データ（第三者のコンテンツを保存・再配布しない）
+/external/*
+!/external/README.md
+
+# 正規化済みデータ（生成物）
+/normalized/*
+!/normalized/README.md
+
+# 取り込みの開発用キャッシュ
+/.cache/
+
+# 第5.2段階で追加 ----------------------------------------------
+# テストカバレッジ（生成物）
+/coverage/
+
+# ログ
+*.log
+npm-debug.log*

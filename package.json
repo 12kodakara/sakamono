@@ -1,0 +1,32 @@
+{
+  "name": "sakamono",
+  "version": "0.1.0",
+  "private": true,
+  "description": "サカモノ - 海外サッカーグッズを日本到着推定額で比較するサイト",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "preview": "npx --yes serve out -l 3001",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "data:liverpool:fetch": "node scripts/liverpool-ingest.mjs",
+    "data:yahoo:search": "node scripts/yahoo-search.mjs",
+    "data:rakuten:search": "node scripts/rakuten-search.mjs",
+    "data:domestic:compare": "node scripts/domestic-compare.mjs"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "esbuild": "^0.28",
+    "typescript": "^5",
+    "vitest": "^3"
+  }
+}
