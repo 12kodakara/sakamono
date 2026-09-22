@@ -17,6 +17,8 @@ export interface ProductGridProps {
   emptyMessage?: string
   /** 先頭何件の画像を先に読み込むか。 */
   priorityCount?: number
+  /** 各カードに販売先（比較に使った海外ストア）の名前を出すか。 */
+  showStore?: boolean
 }
 
 export function ProductGrid({
@@ -24,6 +26,7 @@ export function ProductGrid({
   headingLevel = 'h3',
   emptyMessage = '該当する商品がありません。',
   priorityCount = 0,
+  showStore = false,
 }: ProductGridProps) {
   if (views.length === 0) {
     return <p className="empty-state">{emptyMessage}</p>
@@ -33,7 +36,12 @@ export function ProductGrid({
     <ul className="product-grid">
       {views.map((view, index) => (
         <li key={view.product.id}>
-          <ProductCard view={view} headingLevel={headingLevel} priority={index < priorityCount} />
+          <ProductCard
+            view={view}
+            headingLevel={headingLevel}
+            priority={index < priorityCount}
+            showStore={showStore}
+          />
         </li>
       ))}
     </ul>

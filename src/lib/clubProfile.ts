@@ -59,6 +59,11 @@ export interface ClubProfileInput {
   /** セール一覧・ランキングに載っている商品数（0 ならリンクしない）。 */
   saleCount: number
   rankingCount: number
+  /**
+   * 全クラブ横断のユニフォーム一覧（/kits/）のパス。
+   * 検索に出していないとき（ユニフォームのあるクラブが2つ未満など）は null。
+   */
+  kitsIndexHref?: string | null
 }
 
 export interface ClubProfileLink {
@@ -229,6 +234,10 @@ export function buildClubProfile(input: ClubProfileInput): ClubProfile {
   for (const other of input.relatedClubs) {
     // ★相手のクラブに何があるかは、ここでは分からないので「掲載商品」とだけ言う★
     related.push({ label: `${other.nameJa}の掲載商品`, href: other.href })
+  }
+  // ユニフォームのあるクラブだけ、他クラブのユニフォームと見比べられる一覧へ
+  if (input.kitsIndexHref && views.some((view) => view.product.category === 'kits')) {
+    related.push({ label: 'ほかのクラブのユニフォーム（ユニフォーム一覧）', href: input.kitsIndexHref })
   }
   if (input.saleCount > 0) related.push({ label: 'セール中の商品（全クラブ）', href: '/sale/' })
   if (input.rankingCount > 0) {

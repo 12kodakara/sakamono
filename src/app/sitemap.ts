@@ -24,6 +24,7 @@ import {
   listSaleProductViews,
 } from '@/data/repository'
 import { SITE_URL } from '@/lib/site'
+import { buildKitsIndex } from '@/lib/kits'
 import { buildSitemapEntries } from '@/lib/sitemap'
 
 export const dynamic = 'force-static'
@@ -36,6 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     listSaleProductViews(),
     listPriceGapRanking(),
   ])
+  const kits = buildKitsIndex(products)
 
   const entries = buildSitemapEntries({
     siteUrl: SITE_URL,
@@ -55,6 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     saleCount: sale.length,
     rankingCount: ranking.length,
+    kits: { kitCount: kits.kits.length, clubCount: kits.clubs.length },
   })
 
   return entries.map(({ url, changeFrequency, priority }) => ({ url, changeFrequency, priority }))

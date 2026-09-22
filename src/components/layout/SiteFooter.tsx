@@ -13,6 +13,7 @@ const FOOTER_LINKS = [
     items: [
       { href: '/clubs/', label: 'クラブから探す' },
       { href: '/leagues/', label: 'リーグから探す' },
+      { href: '/kits/', label: 'ユニフォーム一覧' },
       { href: '/search/', label: '商品を検索する' },
     ],
   },

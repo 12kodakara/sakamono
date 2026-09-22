@@ -58,6 +58,18 @@ export interface SitemapInput {
   saleCount: number
   /** 価格差ランキングに載る商品数（0ならランキングを載せない）。 */
   rankingCount: number
+  /**
+   * 全クラブ横断のユニフォーム一覧（/kits/）の中身。
+   * 省略したときは載せない。
+   */
+  kits?: SitemapKitsInput
+}
+
+export interface SitemapKitsInput {
+  /** 掲載しているユニフォームの数。 */
+  kitCount: number
+  /** ユニフォームを掲載しているクラブの数。 */
+  clubCount: number
 }
 
 /* ------------------------------------------------------------
@@ -149,6 +161,17 @@ export function isProductListable(product: SitemapProductInput): boolean {
 }
 
 /**
+ * 全クラブ横断のユニフォーム一覧（/kits/）を載せるか。
+ *
+ * ★ユニフォームのあるクラブが2つ以上のときだけ★。
+ *   1クラブだけなら、そのクラブのページとほぼ同じ中身になり、
+ *   「クラブ横断で探す」ページとしての意味がないためです。
+ */
+export function isKitsIndexListable(kits: SitemapKitsInput): boolean {
+  return kits.kitCount > 0 && kits.clubCount >= 2
+}
+
+/**
  * sitemap に載せるURLの一覧を作る。
  *
  * changeFrequency / priority は変更前の値をそのまま引き継いでいます
@@ -201,6 +224,7 @@ export function buildSitemapEntries(input: SitemapInput): SitemapEntry[] {
   }
 
   /* ---- 集計ページ（掲載する商品があるときだけ）---- */
+  if (input.kits && isKitsIndexListable(input.kits)) add('/kits/', 'listing', 'daily', 0.7)
   if (input.saleCount > 0) add('/sale/', 'listing', 'daily', 0.7)
   if (input.rankingCount > 0) add('/rankings/', 'listing', 'daily', 0.7)
 

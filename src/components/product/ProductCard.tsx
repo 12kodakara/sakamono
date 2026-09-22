@@ -25,9 +25,19 @@ export interface ProductCardProps {
   headingLevel?: 'h2' | 'h3' | 'h4'
   /** 画像を先に読み込むか（画面上部の数件だけ true にする）。 */
   priority?: boolean
+  /**
+   * 販売先（比較に使った海外ストア）の名前を出すか。
+   * クラブをまたいで並べる一覧（/kits/）で使う。海外の掲載が無い商品には出さない。
+   */
+  showStore?: boolean
 }
 
-export function ProductCard({ view, headingLevel: Heading = 'h3', priority = false }: ProductCardProps) {
+export function ProductCard({
+  view,
+  headingLevel: Heading = 'h3',
+  priority = false,
+  showStore = false,
+}: ProductCardProps) {
   const { product, club, overseas } = view
 
   // 割引の判定は evaluateDiscount()（サービス層）が済ませている。ここでは表示するだけ。
@@ -73,6 +83,10 @@ export function ProductCard({ view, headingLevel: Heading = 'h3', priority = fal
             category: product.category,
           })}
         </p>
+
+        {showStore && overseas ? (
+          <p className="product-card__meta">販売先：{overseas.store.name}</p>
+        ) : null}
 
         {product.authenticity === 'authentic' ? (
           <p className="badge-list">

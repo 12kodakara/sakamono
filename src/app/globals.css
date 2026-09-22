@@ -1625,3 +1625,50 @@ button {
 .source-prices .breakdown__note {
   margin-top: var(--space-2);
 }
+
+/* ------------------------------------------------------------
+ * ユニフォーム一覧（/kits/）の絞り込み
+ *
+ * ★既存の色・余白・角丸のトークンだけで作っています。★
+ *   選択肢が増えても折り返すだけで、横にはみ出さないようにしている。
+ * ---------------------------------------------------------- */
+.kits-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.kits-filter__field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 140px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.kits-filter__field select {
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+}
+
+.kits-filter__reset {
+  flex: 0 0 auto;
+}
+
+/* 価格が無い商品の「価格情報を確認できていません。」は、狭いカードでも途中で切らずに折り返す
+   （価格の行の見出しと同じ部品を使っているため、nowrap が効いて文末が切れていた） */
+.price-summary > .price-row__label:only-child {
+  white-space: normal;
+}

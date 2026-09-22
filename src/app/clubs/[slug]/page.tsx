@@ -23,24 +23,28 @@ import {
   listClubSummaries,
   listLeagues,
   listPriceGapRanking,
+  listProductViews,
   listProductViewsByClub,
   listSaleProductViews,
 } from '@/data/repository'
 import type { Club } from '@/domain/types'
 import { buildClubProfile, type ClubProfile } from '@/lib/clubProfile'
+import { buildKitsIndex } from '@/lib/kits'
 import { CATEGORY_LABEL } from '@/lib/labels'
 import { buildPageMetadata } from '@/lib/seo'
-import { isClubListable } from '@/lib/sitemap'
+import { isClubListable, isKitsIndexListable } from '@/lib/sitemap'
 
 /** クラブ固有情報（全クラブ共通の組み立て方。中身は既存データだけ）。 */
 async function loadClubProfile(club: Club): Promise<ClubProfile> {
-  const [leagues, views, summaries, sale, ranking] = await Promise.all([
+  const [leagues, views, summaries, sale, ranking, allViews] = await Promise.all([
     listLeagues(),
     listProductViewsByClub(club.id),
     listClubSummaries(club.leagueId),
     listSaleProductViews(),
     listPriceGapRanking(),
+    listProductViews(),
   ])
+  const kitsIndex = buildKitsIndex(allViews)
 
   return buildClubProfile({
     club,
@@ -53,6 +57,13 @@ async function loadClubProfile(club: Club): Promise<ClubProfile> {
       .map((summary) => ({ nameJa: summary.club.nameJa, href: summary.href })),
     saleCount: sale.length,
     rankingCount: ranking.length,
+    // ユニフォーム一覧は、検索に出しているときだけリンクする（sitemap と同じ判定）
+    kitsIndexHref: isKitsIndexListable({
+      kitCount: kitsIndex.kits.length,
+      clubCount: kitsIndex.clubs.length,
+    })
+      ? '/kits/'
+      : null,
   })
 }
 

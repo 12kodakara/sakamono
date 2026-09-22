@@ -25,6 +25,7 @@ import {
   listProductViews,
   listSaleProductViews,
 } from '@/data/repository'
+import { buildKitsIndex } from '@/lib/kits'
 import { normalizePath } from '@/lib/seo'
 
 const SITE = 'https://12kodakara.github.io/sakamono'
@@ -134,6 +135,14 @@ describe('掲載の判断', () => {
     expect(new Set(urls).size).toBe(urls.length)
   })
 
+  it('★ユニフォーム一覧（/kits/）は、ユニフォームのあるクラブが2つ以上のときだけ載せる★', () => {
+    const urls = (kits?: SitemapInput['kits']) => buildSitemapEntries(input({ kits })).map((e) => e.url)
+    expect(urls()).not.toContain(`${SITE}/kits/`)
+    expect(urls({ kitCount: 3, clubCount: 1 })).not.toContain(`${SITE}/kits/`)
+    expect(urls({ kitCount: 3, clubCount: 2 })).toContain(`${SITE}/kits/`)
+    expect(urls({ kitCount: 3, clubCount: 2 }).filter((u) => u.endsWith('/kits/'))).toHaveLength(1)
+  })
+
   it('トップ・一覧・about はいつも載せる', () => {
     const urls = buildSitemapEntries(
       input({ leagues: [], clubs: [], products: [], saleCount: 0, rankingCount: 0 }),
@@ -155,6 +164,7 @@ describe('★実際のデータから作った sitemap★', () => {
       listSaleProductViews(),
       listPriceGapRanking(),
     ])
+    const kits = buildKitsIndex(products)
     return {
       products,
       entries: buildSitemapEntries({
@@ -172,6 +182,7 @@ describe('★実際のデータから作った sitemap★', () => {
         })),
         saleCount: sale.length,
         rankingCount: ranking.length,
+        kits: { kitCount: kits.kits.length, clubCount: kits.clubs.length },
       }),
     }
   }
@@ -195,6 +206,7 @@ describe('★実際のデータから作った sitemap★', () => {
       '/sale/',
       '/rankings/',
       '/about/',
+      '/kits/',
       ...leagues.map((s) => `/leagues/${s.league.slug}/`),
       ...clubs.map((s) => `/clubs/${s.club.slug}/`),
       ...products.map((view) => view.href),

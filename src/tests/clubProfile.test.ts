@@ -45,6 +45,8 @@ async function pageProfile(slug: string) {
         .map((summary) => ({ nameJa: summary.club.nameJa, href: summary.href })),
       saleCount: sale.length,
       rankingCount: ranking.length,
+      // ページと同じく、ユニフォーム一覧（/kits/）へのリンクを渡す
+      kitsIndexHref: '/kits/',
     }),
   }
 }
@@ -66,6 +68,7 @@ async function existingPaths() {
     '/clubs/',
     '/sale/',
     '/rankings/',
+    '/kits/',
     ...products.map((view) => view.href),
     ...clubs.map((summary) => summary.href),
     ...leagues.map((league) => `/leagues/${league.slug}/`),
@@ -177,17 +180,7 @@ describe('リヴァプールの固有情報', () => {
 
   it('★リンク先は実在するページだけ★', async () => {
     const { profile } = await liverpoolProfile()
-    const products = await listProductViews()
-    const clubs = await listClubSummaries()
-    const leagues = await listLeagues()
-    const existing = new Set([
-      '/clubs/',
-      '/sale/',
-      '/rankings/',
-      ...products.map((view) => view.href),
-      ...clubs.map((summary) => summary.href),
-      ...leagues.map((league) => `/leagues/${league.slug}/`),
-    ])
+    const existing = await existingPaths()
     const internal = [
       ...profile.kitGroups.flatMap((group) => group.items.map((item) => item.href)),
       ...profile.related.map((link) => link.href),
@@ -275,6 +268,26 @@ describe('★レアル・マドリード（ユニフォームだけ・ホーム�
     const { profile } = await profileFor('real-madrid')
     expect(JSON.stringify(profile)).not.toMatch(/undefined|null（|NaN/)
     for (const fact of profile.facts) expect(fact.value).toBeTruthy()
+  })
+})
+
+describe('★ユニフォーム一覧（/kits/）へのリンク★', () => {
+  it('ユニフォームのあるクラブだけ、関連ページにリンクする', async () => {
+    const club = await getClubBySlug('real-madrid')
+    const views = await listProductViewsByClub(club!.id)
+    const base = { club: club!, league: null, relatedClubs: [], saleCount: 0, rankingCount: 0 }
+    const withLink = buildClubProfile({ ...base, views, kitsIndexHref: '/kits/' })
+    expect(withLink.related.map((link) => link.href)).toContain('/kits/')
+    // 検索に出していないとき（null）はリンクしない
+    const withoutLink = buildClubProfile({ ...base, views, kitsIndexHref: null })
+    expect(withoutLink.related.map((link) => link.href)).not.toContain('/kits/')
+    // ユニフォームが無いクラブからはリンクしない
+    const goodsOnly = buildClubProfile({
+      ...base,
+      views: views.map((view) => ({ ...view, product: { ...view.product, category: 'scarves', kitType: null } })),
+      kitsIndexHref: '/kits/',
+    })
+    expect(goodsOnly.related.map((link) => link.href)).not.toContain('/kits/')
   })
 })
 
