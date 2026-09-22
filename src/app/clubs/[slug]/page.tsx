@@ -21,6 +21,7 @@ import {
 } from '@/data/repository'
 import { CATEGORY_LABEL } from '@/lib/labels'
 import { buildPageMetadata } from '@/lib/seo'
+import { isClubListable } from '@/lib/sitemap'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -35,12 +36,24 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params
   const club = await getClubBySlug(slug)
-  if (!club) return buildPageMetadata({ title: 'クラブが見つかりません', path: `/clubs/${slug}/` })
+  if (!club) {
+    return buildPageMetadata({
+      title: 'クラブが見つかりません',
+      path: `/clubs/${slug}/`,
+      noindex: true,
+    })
+  }
+
+  const summary = (await listClubSummaries()).find((item) => item.club.id === club.id)
 
   return buildPageMetadata({
     title: `${club.nameJa}のグッズ価格比較`,
     description: `${club.nameJa}（${club.name}）のユニフォーム・グッズを、海外公式ストアの価格と日本到着推定額で比較できます。`,
     path: `/clubs/${club.slug}/`,
+    // ★商品が1つも無いクラブは検索に出さない（sitemap と同じ判定）。★
+    noindex: summary
+      ? !isClubListable({ slug: club.slug, productCount: summary.productCount })
+      : true,
   })
 }
 

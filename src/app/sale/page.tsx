@@ -9,12 +9,17 @@ import { ProductGrid } from '@/components/product/ProductGrid'
 import { listSaleProductViews } from '@/data/repository'
 import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata = buildPageMetadata({
-  title: 'セール情報',
-  description:
-    '海外クラブ公式ストアで値下げ中のサッカーグッズを、割引率の高い順に紹介します。日本到着推定額つきで比較できます。',
-  path: '/sale/',
-})
+export async function generateMetadata() {
+  const views = await listSaleProductViews()
+  return buildPageMetadata({
+    title: 'セール情報',
+    description:
+      '海外クラブ公式ストアで値下げ中のサッカーグッズを、割引率の高い順に紹介します。日本到着推定額つきで比較できます。',
+    path: '/sale/',
+    // ★値下げ中の商品が1つも無いときは検索に出さない（sitemap と同じ条件）。★
+    noindex: views.length === 0,
+  })
+}
 
 export default async function SalePage() {
   const views = await listSaleProductViews()

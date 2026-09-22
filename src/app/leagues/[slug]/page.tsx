@@ -13,10 +13,12 @@ import { SectionHeader } from '@/components/ui/SectionHeader'
 import {
   getLeagueBySlug,
   listClubSummaries,
+  listLeagueSummaries,
   listLeagues,
   listProductViewsByLeague,
 } from '@/data/repository'
 import { buildPageMetadata } from '@/lib/seo'
+import { isLeagueListable } from '@/lib/sitemap'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -32,13 +34,28 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params
   const league = await getLeagueBySlug(slug)
   if (!league) {
-    return buildPageMetadata({ title: 'リーグが見つかりません', path: `/leagues/${slug}/` })
+    return buildPageMetadata({
+      title: 'リーグが見つかりません',
+      path: `/leagues/${slug}/`,
+      noindex: true,
+    })
   }
+
+  const summary = (await listLeagueSummaries()).find((item) => item.league.id === league.id)
 
   return buildPageMetadata({
     title: `${league.nameJa}のクラブ・グッズ価格比較`,
     description: `${league.nameJa}（${league.name}）所属クラブのユニフォーム・グッズを、海外公式ストアの価格と日本到着推定額で比較できます。`,
     path: `/leagues/${league.slug}/`,
+    // ★所属クラブも商品も無いリーグ（「準備中です」だけ）は検索に出さない。★
+    //   sitemap と同じ判定（src/lib/sitemap.ts）を使う。
+    noindex: summary
+      ? !isLeagueListable({
+          slug: league.slug,
+          clubCount: summary.clubCount,
+          productCount: summary.productCount,
+        })
+      : true,
   })
 }
 

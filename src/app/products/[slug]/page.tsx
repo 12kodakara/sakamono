@@ -43,6 +43,7 @@ import {
   resolveStockStatus,
 } from '@/lib/labels'
 import { buildPageMetadata } from '@/lib/seo'
+import { isProductListable } from '@/lib/sitemap'
 import { SITE_URL, assetPath } from '@/lib/site'
 
 interface PageProps {
@@ -58,7 +59,11 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params
   const view = await getProductViewBySlug(slug)
   if (!view) {
-    return buildPageMetadata({ title: '商品が見つかりません', path: `/products/${slug}/` })
+    return buildPageMetadata({
+      title: '商品が見つかりません',
+      path: `/products/${slug}/`,
+      noindex: true,
+    })
   }
 
   const { product, club, overseas } = view
@@ -71,6 +76,13 @@ export async function generateMetadata({ params }: PageProps) {
     title: `${product.nameJa}の価格比較`,
     description: `${club.nameJa}の${product.nameJa}（${product.season ?? 'シーズン未確認'}）を、海外公式ストアの価格と日本到着推定額で比較。${landedNote}国内価格との差も確認できます。`,
     path: `/products/${product.slug}/`,
+    // ★海外価格も国内価格も無い商品は検索に出さない（sitemap と同じ判定）。★
+    //   比べる数字が1つも無く、「確認できていません」が並ぶだけのページのため。
+    noindex: !isProductListable({
+      href: view.href,
+      hasOverseasPrice: overseas !== null,
+      hasDomesticPrice: view.comparison.domesticPrice.reference !== null,
+    }),
   })
 }
 

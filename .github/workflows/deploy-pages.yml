@@ -80,9 +80,17 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
           NEXT_PUBLIC_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
           # ---- 開発版か本番か ----------------------------------
-          # ★NEXT_PUBLIC_SITE_PREVIEW を設定しません。★
-          #   未設定＝開発版として扱われ、全ページ noindex になります。
-          #   本番公開すると決めたときに false を足してください。
+          # ★このワークフロー（main への push → GitHub Pages）だけが「本番」です。★
+          #   false を渡すと、検索エンジンに載せてよいページが index, follow になり、
+          #   robots.txt もクロール許可＋Sitemapの案内に変わります。
+          #
+          #   ここ以外（ローカルの npm run dev / npm run build など）は
+          #   この値が渡らないので、既定の「開発版」＝全ページ noindex のままです。
+          #   設定し忘れたときに検索登録されてしまう向きにはなりません。
+          #
+          #   中身の無いページ（準備中のリーグ、価格が1つも無い商品など）と
+          #   /search/・404 は、本番でも noindex のままです（各ページで個別に判定）。
+          NEXT_PUBLIC_SITE_PREVIEW: 'false'
         run: npm run build
 
       # public/.nojekyll がビルドで out/ へコピーされますが、

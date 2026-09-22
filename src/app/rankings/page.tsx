@@ -13,12 +13,17 @@ import { ProductGrid } from '@/components/product/ProductGrid'
 import { listPriceGapRanking } from '@/data/repository'
 import { buildPageMetadata } from '@/lib/seo'
 
-export const metadata = buildPageMetadata({
-  title: '価格差ランキング',
-  description:
-    '日本到着推定額が国内価格より安いサッカーグッズを、差額の大きい順に並べたランキングです。',
-  path: '/rankings/',
-})
+export async function generateMetadata() {
+  const views = await listPriceGapRanking()
+  return buildPageMetadata({
+    title: '価格差ランキング',
+    description:
+      '日本到着推定額が国内価格より安いサッカーグッズを、差額の大きい順に並べたランキングです。',
+    path: '/rankings/',
+    // ★掲載できる商品が1つも無いときは検索に出さない（sitemap と同じ条件）。★
+    noindex: views.length === 0,
+  })
+}
 
 export default async function RankingsPage() {
   const views = await listPriceGapRanking()
