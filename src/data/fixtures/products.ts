@@ -304,6 +304,8 @@ export const productFixtures: Product[] = [
     season: '2025/26',
     manufacturer: 'adidas',
     // 実データ検証で確認した品番。半袖の JV6423 とは別商品・別価格。
+    // 公式確認: adidas.jp の表示で品番・クラブ・シーズン・種類・仕様・メーカーの一致を人手で確認済み（2026-09-22）。
+    // 記録: docs/data-sources/manual-official-checks.md（JV6456）
     manufacturerSku: 'JV6456',
     jan: null,
     ean: null,
@@ -327,6 +329,8 @@ export const productFixtures: Product[] = [
     manufacturer: 'adidas',
     // 実データ検証で確認した品番。大人用の JV6423 とは別商品・別価格。
     // ★子供用は大人用よりかなり安いため、取り違えると「国内が激安」に見える。★
+    // 公式確認: adidas.jp の表示で品番・クラブ・シーズン・種類・仕様・メーカーの一致を人手で確認済み（2026-09-22）。
+    // 記録: docs/data-sources/manual-official-checks.md（JV6436）
     manufacturerSku: 'JV6436',
     jan: null,
     ean: null,
@@ -349,6 +353,8 @@ export const productFixtures: Product[] = [
     season: '2025/26',
     manufacturer: 'adidas',
     // 実データ検証で確認した品番。
+    // 公式確認: adidas.jp の表示で品番・クラブ・シーズン・種類・仕様・メーカーの一致を人手で確認済み（2026-09-22）。
+    // 記録: docs/data-sources/manual-official-checks.md（JV6487）
     manufacturerSku: 'JV6487',
     jan: null,
     ean: null,
