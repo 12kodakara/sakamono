@@ -26,6 +26,13 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   formatDetection: { telephone: false, address: false, email: false },
+  // Google Search Console の所有権確認（HTMLタグ方式）。
+  // Next.js がすべてのページの <head> に
+  // <meta name="google-site-verification" content="…"> を1つ出力する。
+  // この値は公開されるもので、秘密情報ではない。
+  verification: {
+    google: 'yDFHG0ITbtE49G9YeIbR_G2sAtCCqhRgSwbYPh8kp3I',
+  },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
