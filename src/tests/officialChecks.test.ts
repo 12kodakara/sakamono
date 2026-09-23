@@ -5,10 +5,17 @@
  *
  * ★公式表示と一致することを確認した値が、あとの編集で変わっていないかを守ります。★
  *   変えるときは、先に公式情報を確認し直して記録を更新してください。
+ *
+ * ★品番と商品の結び付きも守ります。★
+ *   品番を別の商品へ付け替えると、照合で「同じ商品」と誤判定させてしまいます。
  */
 
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { listingFixtures, productFixtures } from '@/data/fixtures'
+
+const PRODUCTS_SOURCE = readFileSync('src/data/fixtures/products.ts', 'utf8')
+const RECORD = readFileSync('docs/data-sources/manual-official-checks.md', 'utf8')
 
 /** 記録に書いた公式表示の値（画面に表示が無かった項目は含めない）。 */
 const CONFIRMED = [
@@ -41,27 +48,93 @@ const CONFIRMED = [
     manufacturer: 'adidas',
     gender: 'kids',
   },
+  {
+    sku: 'JV6423',
+    id: 'product-lfc-2526-home-replica',
+    clubId: 'club-liverpool',
+    season: '2025/26',
+    kitType: 'home',
+    authenticity: 'replica',
+    manufacturer: 'adidas',
+  },
+  {
+    sku: 'KA6855',
+    id: 'product-lfc-2526-third-replica',
+    clubId: 'club-liverpool',
+    season: '2025/26',
+    kitType: 'third',
+    authenticity: 'replica',
+    manufacturer: 'adidas',
+  },
+  {
+    sku: 'JY4237',
+    id: 'product-lfc-2526-home-authentic',
+    clubId: 'club-liverpool',
+    season: '2025/26',
+    // ★レプリカ（JV6423）とは別商品。取り違えると価格比較が大きく狂う。★
+    kitType: 'home',
+    authenticity: 'authentic',
+    manufacturer: 'adidas',
+  },
 ] as const
 
+/**
+ * 同じ品番を持ってよい、確認済み商品以外の商品。
+ *
+ * マーキング（選手名・背番号）は無地のシャツへ後から入れるため、
+ * 実際のデータでも品番は無地と同じになります。
+ * 「品番が一致した＝同じ商品」と判断しないことを確かめるための商品です。
+ */
+const SHARED_SKU_EXCEPTIONS: Record<string, string[]> = {
+  JV6423: ['product-lfc-2526-home-replica-salah'],
+}
+
+/**
+ * まだ開発用のサンプル掲載（example.com・サンプル価格）と仮のJAN/EANが残っている商品。
+ * 商品そのものの公式確認とは別に、掲載・価格・コードの実データ化が必要です。
+ */
+const SAMPLE_LISTINGS_REMAIN = new Set(['product-lfc-2526-home-replica'])
+
 describe('★人手で公式確認した商品★', () => {
+  it('確認済みの品番は6件で、重複していない', () => {
+    const skus = CONFIRMED.map((checked) => checked.sku)
+    expect(skus).toHaveLength(6)
+    expect(new Set(skus).size).toBe(skus.length)
+  })
+
   for (const checked of CONFIRMED) {
     it(`${checked.sku} は公式表示と一致する値のまま`, () => {
-      const products = productFixtures.filter((product) => product.manufacturerSku === checked.sku)
-      // 品番は1商品だけを指す
-      expect(products).toHaveLength(1)
-      const [product] = products
-      const { sku: _sku, ...expected } = checked
-      expect(product).toMatchObject({ ...expected, category: 'kits' })
+      const product = productFixtures.find((item) => item.id === checked.id)
+      expect(product, `${checked.id} が見つかりません`).toBeDefined()
+      const { sku, ...expected } = checked
+      expect(product).toMatchObject({ ...expected, manufacturerSku: sku, category: 'kits' })
+    })
+
+    it(`${checked.sku} を別の商品へ付け替えていない`, () => {
+      const holders = productFixtures
+        .filter((item) => item.manufacturerSku === checked.sku)
+        .map((item) => item.id)
+      const allowed = [checked.id, ...(SHARED_SKU_EXCEPTIONS[checked.sku] ?? [])]
+      expect([...holders].sort()).toEqual([...allowed].sort())
+    })
+
+    it(`${checked.sku} の公式確認の記録がある`, () => {
+      // 記録（docs）と商品データ（コメント）の両方から追跡できること
+      expect(RECORD).toContain(`${checked.sku}（${checked.id}）`)
+      expect(PRODUCTS_SOURCE).toContain(`manual-official-checks.md（${checked.sku}）`)
     })
   }
 
   it('★確認時点の価格・在庫を商品データへ入れていない★', () => {
-    const ids = new Set<string>(CONFIRMED.map((checked) => checked.id))
+    const ids = new Set<string>(
+      CONFIRMED.map((checked) => checked.id).filter((id) => !SAMPLE_LISTINGS_REMAIN.has(id)),
+    )
     expect(listingFixtures.filter((listing) => ids.has(listing.productId))).toEqual([])
   })
 
   it('★仮のJAN/EANや公式画像を入れていない★', () => {
     for (const checked of CONFIRMED) {
+      if (SAMPLE_LISTINGS_REMAIN.has(checked.id)) continue
       const product = productFixtures.find((item) => item.id === checked.id)!
       expect(product.jan).toBeNull()
       expect(product.ean).toBeNull()

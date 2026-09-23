@@ -45,6 +45,8 @@ export const productFixtures: Product[] = [
     manufacturer: 'adidas',
     // 実データ検証で確認した実際の品番（半袖ホーム。長袖は JV6456）。
     // ★品番は商品を一意に指す事実情報。第5段階では公式フィードから取得する。★
+    // 公式確認: adidas公式の商品ページ（個別）で品番・商品名・カラーを人手で確認済み（2026-09-23）。
+    // 記録: docs/data-sources/manual-official-checks.md（JV6423）
     manufacturerSku: 'JV6423',
     // JANは未確認。先頭が 20 のコードは店舗内管理用の予約番号で、
     // 実在商品と衝突しない（サンプル応答の動作確認に使用）。
@@ -400,8 +402,9 @@ export const productFixtures: Product[] = [
     nameJa: 'リヴァプール 2025/26 サード レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'adidas',
-    // 品番は未確認。★推測で埋めない。★
-    manufacturerSku: null,
+    // 公式確認: adidas公式の商品ページ（個別）で品番・商品名・カラーを人手で確認済み（2026-09-23）。
+    // 記録: docs/data-sources/manual-official-checks.md（KA6855）
+    manufacturerSku: 'KA6855',
     jan: null,
     ean: null,
     category: 'kits',
@@ -422,8 +425,9 @@ export const productFixtures: Product[] = [
     nameJa: 'リヴァプール 2025/26 ホーム オーセンティック ユニフォーム',
     season: '2025/26',
     manufacturer: 'adidas',
-    // 品番は未確認。
-    manufacturerSku: null,
+    // 公式確認: adidas公式の商品ページ（個別）で品番・商品名・カラーを人手で確認済み（2026-09-23）。
+    // 記録: docs/data-sources/manual-official-checks.md（JY4237）
+    manufacturerSku: 'JY4237',
     jan: null,
     ean: null,
     category: 'kits',
