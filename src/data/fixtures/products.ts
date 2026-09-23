@@ -185,7 +185,10 @@ export const productFixtures: Product[] = [
     nameJa: 'FCバルセロナ 2025/26 サード レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
+    // 公式確認: Nike公式の商品情報で商品名・スタイル番号・カラー・仕様を人手で確認済み（2026-09-23）。
+    // ★ウィメンズ版の番号。★メンズ版やショーツなど別商品の番号と混同しないこと。
+    // 記録: docs/data-sources/manual-official-checks.md（HM3240-855）
+    manufacturerSku: 'HM3240-855',
     jan: null,
     ean: null,
     category: 'kits',

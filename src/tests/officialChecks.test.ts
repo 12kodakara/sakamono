@@ -137,6 +137,18 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    // ★ウィメンズ版の番号。メンズ版・ショーツなど別商品の番号と混同しない。★
+    sku: 'HM3240-855',
+    id: 'product-fcb-2526-third-replica',
+    clubId: 'club-fc-barcelona',
+    season: '2025/26',
+    kitType: 'third',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'women',
+    sleeve: 'short',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -173,12 +185,13 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
   'product-fcb-2526-home-replica',
   'product-thfc-2526-home-replica',
   'product-thfc-2526-away-replica',
+  'product-fcb-2526-third-replica',
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は12件で、重複していない', () => {
+  it('確認済みの品番は13件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(12)
+    expect(skus).toHaveLength(13)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -229,6 +242,24 @@ describe('★人手で公式確認した商品★', () => {
       }
       expect(replica.authenticity).toBe('replica')
       expect(authentic.authenticity).toBe('authentic')
+    }
+  })
+
+  /*
+   * ★対象（メンズ／ウィメンズ／キッズ）の取り違えを防ぐ。★
+   *   メーカーは対象ごとに別の品番を割り当てます。
+   *   取り違えると、サイズも値段も違う商品を同じものとして比べてしまいます。
+   */
+  it('★品番ごとの対象（メンズ／ウィメンズ／キッズ）が公式表示のまま★', () => {
+    for (const checked of CONFIRMED) {
+      if (!('gender' in checked)) continue
+      const product = productFixtures.find((item) => item.id === checked.id)!
+      expect(product.gender, checked.sku).toBe(checked.gender)
+      // 同じ品番を、別の対象の商品が持っていないこと
+      const holders = productFixtures.filter((item) => item.manufacturerSku === checked.sku)
+      for (const holder of holders) {
+        expect(holder.gender, `${checked.sku} を ${holder.id} が別の対象で持っている`).toBe(checked.gender)
+      }
     }
   })
 
