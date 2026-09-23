@@ -117,7 +117,10 @@ export const productFixtures: Product[] = [
     nameJa: 'トッテナム 2025/26 ホーム レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
+    // 公式確認: Nike日本公式の商品ページで商品名・スタイル番号・カラー・仕様を人手で確認済み（2026-09-23）。
+    // ★アウェイ（別商品）とは別番号。色違いもスタイル番号が変わる。★
+    // 記録: docs/data-sources/manual-official-checks.md（HJ4598-101）
+    manufacturerSku: 'HJ4598-101',
     jan: null,
     ean: null, // 未確認（開発用の仮コードを削除）
     category: 'kits',

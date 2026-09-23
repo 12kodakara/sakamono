@@ -114,6 +114,17 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    sku: 'HJ4598-101',
+    id: 'product-thfc-2526-home-replica',
+    clubId: 'club-tottenham',
+    season: '2025/26',
+    kitType: 'home',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -148,12 +159,13 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
   'product-rma-2526-home-authentic',
   'product-lfc-2526-away-authentic',
   'product-fcb-2526-home-replica',
+  'product-thfc-2526-home-replica',
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は10件で、重複していない', () => {
+  it('確認済みの品番は11件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(10)
+    expect(skus).toHaveLength(11)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
