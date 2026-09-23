@@ -40,29 +40,6 @@ function listing(seed: ListingSeed): StoreListing {
 const CHECKED_AT = '2026-09-18T09:00:00.000Z'
 
 export const listingFixtures: StoreListing[] = [
-  /* ===== Liverpool: ホーム レプリカ ========================= */
-  listing({
-    id: 'listing-lfc-home-r-official',
-    productId: 'product-lfc-2526-home-replica',
-    storeId: 'store-lfc-official',
-    externalId: 'lfc-2526-h-r',
-    currency: 'GBP',
-    currentPrice: 79.95,
-    regularPrice: 94.95,
-    inStock: true,
-    lastCheckedAt: CHECKED_AT,
-  }),
-  listing({
-    id: 'listing-lfc-home-r-domestic',
-    productId: 'product-lfc-2526-home-replica',
-    storeId: 'store-jp-sample-a',
-    externalId: 'jp-a-lfc-2526-h-r',
-    currency: 'JPY',
-    currentPrice: 21800,
-    regularPrice: 21800,
-    inStock: true,
-    lastCheckedAt: CHECKED_AT,
-  }),
 
   /* ===== Liverpool: アウェイ オーセンティック =============== */
   listing({
@@ -301,23 +278,6 @@ export const listingFixtures: StoreListing[] = [
     currency: 'GBP',
     currentPrice: 74.95,
     regularPrice: 74.95,
-    inStock: true,
-    lastCheckedAt: CHECKED_AT,
-  }),
-
-  /*
-   * 極端に安いフリマ出品。
-   * 人の確認が取れていないモール型の出品なので、比較には使わない。
-   * 「単純な最安値を採用しない」ことを確かめるためのデータ。
-   */
-  listing({
-    id: 'listing-lfc-home-r-marketplace',
-    productId: 'product-lfc-2526-home-replica',
-    storeId: 'store-jp-marketplace-c',
-    externalId: 'jp-c-lfc-2526-h-r',
-    currency: 'JPY',
-    currentPrice: 9800,
-    regularPrice: 9800,
     inStock: true,
     lastCheckedAt: CHECKED_AT,
   }),

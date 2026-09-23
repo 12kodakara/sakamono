@@ -48,10 +48,11 @@ export const productFixtures: Product[] = [
     // 公式確認: adidas公式の商品ページ（個別）で品番・商品名・カラーを人手で確認済み（2026-09-23）。
     // 記録: docs/data-sources/manual-official-checks.md（JV6423）
     manufacturerSku: 'JV6423',
-    // JANは未確認。先頭が 20 のコードは店舗内管理用の予約番号で、
-    // 実在商品と衝突しない（サンプル応答の動作確認に使用）。
-    jan: '2000000001004',
-    ean: '2000000000017',
+    // ★JAN/EANは未確認のままにしています。★
+    //   以前は動作確認用の仮コード（先頭が20の店舗内管理用番号）を入れていましたが、
+    //   公式確認済みの商品に根拠の無いコードを残さないため削除しました。
+    jan: null,
+    ean: null,
     category: 'kits',
     kitType: 'home',
     authenticity: 'replica',

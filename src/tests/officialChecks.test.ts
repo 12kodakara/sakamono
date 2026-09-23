@@ -12,7 +12,7 @@
 
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { listingFixtures, productFixtures } from '@/data/fixtures'
+import { listingFixtures, productFixtures, storeFixtures } from '@/data/fixtures'
 
 const PRODUCTS_SOURCE = readFileSync('src/data/fixtures/products.ts', 'utf8')
 const RECORD = readFileSync('docs/data-sources/manual-official-checks.md', 'utf8')
@@ -89,12 +89,6 @@ const SHARED_SKU_EXCEPTIONS: Record<string, string[]> = {
   JV6423: ['product-lfc-2526-home-replica-salah'],
 }
 
-/**
- * まだ開発用のサンプル掲載（example.com・サンプル価格）と仮のJAN/EANが残っている商品。
- * 商品そのものの公式確認とは別に、掲載・価格・コードの実データ化が必要です。
- */
-const SAMPLE_LISTINGS_REMAIN = new Set(['product-lfc-2526-home-replica'])
-
 describe('★人手で公式確認した商品★', () => {
   it('確認済みの品番は6件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
@@ -126,19 +120,41 @@ describe('★人手で公式確認した商品★', () => {
   }
 
   it('★確認時点の価格・在庫を商品データへ入れていない★', () => {
-    const ids = new Set<string>(
-      CONFIRMED.map((checked) => checked.id).filter((id) => !SAMPLE_LISTINGS_REMAIN.has(id)),
-    )
+    const ids = new Set<string>(CONFIRMED.map((checked) => checked.id))
     expect(listingFixtures.filter((listing) => ids.has(listing.productId))).toEqual([])
   })
 
   it('★仮のJAN/EANや公式画像を入れていない★', () => {
     for (const checked of CONFIRMED) {
-      if (SAMPLE_LISTINGS_REMAIN.has(checked.id)) continue
       const product = productFixtures.find((item) => item.id === checked.id)!
       expect(product.jan).toBeNull()
       expect(product.ean).toBeNull()
       expect(product.image.source).toBe('placeholder')
+    }
+  })
+
+  /*
+   * ★公式確認済みの商品に、開発用のダミーを混ぜない。★
+   *   ここで見るのは確認済みの商品だけです。
+   *   ほかの商品（まだ実データ化していないもの）には、
+   *   開発用のサンプル掲載が残っていて構いません。
+   */
+  it('★確認済み商品に、ダミーのURL・販売元・コードが無い★', () => {
+    const sampleStores = new Set(
+      storeFixtures.filter((store) => /sample/i.test(store.slug)).map((store) => store.id),
+    )
+    for (const checked of CONFIRMED) {
+      const product = productFixtures.find((item) => item.id === checked.id)!
+      const listings = listingFixtures.filter((listing) => listing.productId === product.id)
+      for (const listing of listings) {
+        expect(listing.externalUrl, `${checked.sku}: ダミーURL`).not.toMatch(/example\.(com|org|net)/)
+        expect(sampleStores.has(listing.storeId), `${checked.sku}: サンプル販売元`).toBe(false)
+      }
+      // 「20」で始まる13桁は店舗内管理用の予約番号（実在商品には付かない）
+      for (const code of [product.jan, product.ean]) {
+        if (code) expect(code, `${checked.sku}: 仮コード`).not.toMatch(/^20\d{11}$/)
+      }
+      expect(product.manufacturerSku, `${checked.sku}: 仮の品番`).not.toMatch(/^SAMPLE/i)
     }
   })
 })

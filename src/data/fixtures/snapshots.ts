@@ -26,22 +26,6 @@ function history(
 }
 
 export const priceSnapshotFixtures: PriceSnapshot[] = [
-  ...history('listing-lfc-home-r-official', 'GBP', [
-    { month: '2026-04', price: 94.95 },
-    { month: '2026-05', price: 94.95 },
-    { month: '2026-06', price: 89.95 },
-    { month: '2026-07', price: 89.95 },
-    { month: '2026-08', price: 84.95 },
-    { month: '2026-09', price: 79.95 },
-  ]),
-  ...history('listing-lfc-home-r-domestic', 'JPY', [
-    { month: '2026-04', price: 22800 },
-    { month: '2026-05', price: 22800 },
-    { month: '2026-06', price: 22800 },
-    { month: '2026-07', price: 21800 },
-    { month: '2026-08', price: 21800 },
-    { month: '2026-09', price: 21800 },
-  ]),
   ...history('listing-thfc-home-r-official', 'GBP', [
     { month: '2026-04', price: 84.95 },
     { month: '2026-05', price: 84.95 },

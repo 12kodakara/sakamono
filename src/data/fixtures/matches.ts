@@ -45,13 +45,6 @@ function match(seed: MatchSeed): DomesticMatch {
 }
 
 export const domesticMatchFixtures: DomesticMatch[] = [
-  match({
-    id: 'match-lfc-home-r',
-    productId: 'product-lfc-2526-home-replica',
-    storeListingId: 'listing-lfc-home-r-domestic',
-    matchMethod: 'ean',
-    reviewed: true,
-  }),
   // ケースB（国内購入の方が安い）で使う。モール型なので人の確認済みにしてある。
   match({
     id: 'match-lfc-away-a',
@@ -115,19 +108,6 @@ export const domesticMatchFixtures: DomesticMatch[] = [
     storeListingId: 'listing-lfc-2425-home-domestic',
     matchMethod: 'ean',
     reviewed: true,
-  }),
-
-  /*
-   * ↓ 極端に安いフリマ出品。confidence はランクBだが、
-   *   モール型の出品で人の確認が無いため比較対象から外れる。
-   *   「単純な最安値を採用しない」ことの確認用。
-   */
-  match({
-    id: 'match-lfc-home-r-marketplace',
-    productId: 'product-lfc-2526-home-replica',
-    storeListingId: 'listing-lfc-home-r-marketplace',
-    matchMethod: 'sku',
-    reviewed: false,
   }),
 
   // ↓ 在庫切れのため比較対象から外れる例（信頼度と販売元は問題なし）

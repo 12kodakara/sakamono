@@ -207,18 +207,14 @@ describe('ケースF: Authentic / Replica 違い', () => {
  * ========================================================== */
 
 describe('国内価格の選択', () => {
-  it('★極端に安いフリマ出品を採用しない★', async () => {
-    const v = await view('liverpool-2025-26-home-replica')
-
-    expect(v.comparison.domesticPrice.examinedCount).toBe(2)
-    expect(v.comparison.domesticPrice.offerCount).toBe(1)
-    // 9,800円の出品ではなく、21,800円の正規取扱店を採用する
-    expect(v.comparison.domesticPrice.referencePriceJpy).toBe(21_800)
-
-    const excluded = v.comparison.domesticPrice.excluded[0]
-    expect(excluded.candidate.itemPriceJpy).toBe(9_800)
-    expect(excluded.reasons).toContain('untrusted-store')
-  })
+  /*
+   * ★「極端に安いフリマ出品を採用しない」の確認は、ここには置いていません。★
+   *   使っていたサンプル掲載は、公式確認済みの商品（JV6423）から
+   *   開発用のダミーを取り除いたときに削除しました。
+   *   同じ規則は src/tests/domesticPrice.test.ts が単体で確かめています
+   *   （モール型＋人の確認なし → 'untrusted-store' で除外）。
+   *   取得から表示までの通し確認は、下の在庫切れの例が受け持ちます。
+   */
 
   it('在庫切れの国内掲載を採用しない', async () => {
     const v = await view('fc-barcelona-2025-26-home-replica')
