@@ -125,6 +125,18 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    sku: 'HJ4609-011',
+    id: 'product-thfc-2526-away-replica',
+    clubId: 'club-tottenham',
+    season: '2025/26',
+    // ★ホーム（HJ4598-101）とは別商品・別番号。★
+    kitType: 'away',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -160,12 +172,13 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
   'product-lfc-2526-away-authentic',
   'product-fcb-2526-home-replica',
   'product-thfc-2526-home-replica',
+  'product-thfc-2526-away-replica',
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は11件で、重複していない', () => {
+  it('確認済みの品番は12件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(11)
+    expect(skus).toHaveLength(12)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -216,6 +229,27 @@ describe('★人手で公式確認した商品★', () => {
       }
       expect(replica.authenticity).toBe('replica')
       expect(authentic.authenticity).toBe('authentic')
+    }
+  })
+
+  /*
+   * ★同じクラブ・同じシーズンでも、ホームとアウェイは別の品番。★
+   *   種類を取り違えると、色も値段も違う商品を同じものとして比べてしまいます。
+   */
+  it('★ホームとアウェイは別の品番★', () => {
+    const pairs = [
+      { home: 'HJ4598-101', away: 'HJ4609-011', club: 'club-tottenham' },
+      { home: 'JV6423', away: 'JV6487', club: 'club-liverpool' },
+    ]
+    for (const pair of pairs) {
+      const home = productFixtures.find((item) => item.manufacturerSku === pair.home)!
+      const away = productFixtures.find((item) => item.manufacturerSku === pair.away)!
+      expect(pair.home).not.toBe(pair.away)
+      expect(home.id).not.toBe(away.id)
+      expect(home.clubId).toBe(pair.club)
+      expect(away.clubId).toBe(pair.club)
+      expect(home.kitType).toBe('home')
+      expect(away.kitType).toBe('away')
     }
   })
 
