@@ -70,7 +70,7 @@ export const productFixtures: Product[] = [
     nameJa: 'リヴァプール 2025/26 アウェイ オーセンティック ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: 'SAMPLE-LFC-2526-A-A',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
     ean: null,
     category: 'kits',
@@ -90,7 +90,7 @@ export const productFixtures: Product[] = [
     nameJa: 'リヴァプール 2025/26 トレーニングトップ',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: 'SAMPLE-LFC-2526-TR',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
     ean: null,
     category: 'training',
@@ -112,9 +112,9 @@ export const productFixtures: Product[] = [
     nameJa: 'トッテナム 2025/26 ホーム レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: 'SAMPLE-THFC-2526-H-R',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
-    ean: '2000000000024',
+    ean: null, // 未確認（開発用の仮コードを削除）
     category: 'kits',
     kitType: 'home',
     authenticity: 'replica',
@@ -132,7 +132,7 @@ export const productFixtures: Product[] = [
     nameJa: 'トッテナム クレスト マフラー',
     season: '2025/26',
     manufacturer: 'Tottenham Hotspur',
-    manufacturerSku: 'SAMPLE-THFC-SCARF',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
     ean: null,
     category: 'scarves',
@@ -154,9 +154,9 @@ export const productFixtures: Product[] = [
     nameJa: 'FCバルセロナ 2025/26 ホーム レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: 'SAMPLE-FCB-2526-H-R',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
-    ean: '2000000000031',
+    ean: null, // 未確認（開発用の仮コードを削除）
     category: 'kits',
     kitType: 'home',
     authenticity: 'replica',
@@ -174,7 +174,7 @@ export const productFixtures: Product[] = [
     nameJa: 'FCバルセロナ 2025/26 サード レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: 'SAMPLE-FCB-2526-3-R',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
     ean: null,
     category: 'kits',
@@ -196,9 +196,9 @@ export const productFixtures: Product[] = [
     nameJa: 'レアル・マドリード 2025/26 ホーム レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'adidas',
-    manufacturerSku: 'SAMPLE-RMA-2526-H-R',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
-    ean: '2000000000048',
+    ean: null, // 未確認（開発用の仮コードを削除）
     category: 'kits',
     kitType: 'home',
     authenticity: 'replica',
@@ -216,7 +216,7 @@ export const productFixtures: Product[] = [
     nameJa: 'レアル・マドリード 2025/26 ホーム オーセンティック ユニフォーム',
     season: '2025/26',
     manufacturer: 'adidas',
-    manufacturerSku: 'SAMPLE-RMA-2526-H-A',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
     ean: null,
     category: 'kits',
@@ -243,9 +243,9 @@ export const productFixtures: Product[] = [
     nameJa: 'リヴァプール 2024/25 ホーム レプリカ ユニフォーム',
     season: '2024/25',
     manufacturer: 'Nike',
-    manufacturerSku: 'SAMPLE-LFC-2425-H-R',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
-    ean: '2000000000055',
+    ean: null, // 未確認（開発用の仮コードを削除）
     category: 'kits',
     kitType: 'home',
     authenticity: 'replica',
@@ -270,7 +270,7 @@ export const productFixtures: Product[] = [
     nameJa: 'トッテナム 2025/26 アウェイ レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: 'SAMPLE-THFC-2526-A-R',
+    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
     ean: null,
     category: 'kits',
