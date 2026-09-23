@@ -78,6 +78,18 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    sku: 'JV5918',
+    id: 'product-rma-2526-home-authentic',
+    clubId: 'club-real-madrid',
+    season: '2025/26',
+    // ★レプリカ（JJ1931）とは別商品・別品番。★
+    kitType: 'home',
+    authenticity: 'authentic',
+    manufacturer: 'adidas',
+    gender: 'men',
+    sleeve: 'short',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -107,12 +119,15 @@ const SHARED_SKU_EXCEPTIONS: Record<string, string[]> = {
  *   公式確認できたからといって、サンプルの価格や販売元が正しくなるわけではありません。
  *   掲載の実データ化は別の工程で行い、済んだらこの一覧から外します。
  */
-const SAMPLE_LISTINGS_REMAIN = new Set(['product-rma-2526-home-replica'])
+const SAMPLE_LISTINGS_REMAIN = new Set([
+  'product-rma-2526-home-replica',
+  'product-rma-2526-home-authentic',
+])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は7件で、重複していない', () => {
+  it('確認済みの品番は8件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(7)
+    expect(skus).toHaveLength(8)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -138,6 +153,31 @@ describe('★人手で公式確認した商品★', () => {
       expect(PRODUCTS_SOURCE).toContain(`manual-official-checks.md（${checked.sku}）`)
     })
   }
+
+  /*
+   * ★レプリカとオーセンティックの取り違えを防ぐ。★
+   *   同じクラブ・同じシーズン・同じ種類で仕様だけが違う組は、
+   *   品番を入れ替えると価格比較が大きく狂います（1万円以上違うことがある）。
+   */
+  it('★同じホームでも、レプリカとオーセンティックは別の品番★', () => {
+    const pairs = [
+      { replica: 'JJ1931', authentic: 'JV5918', club: 'club-real-madrid' },
+      { replica: 'JV6423', authentic: 'JY4237', club: 'club-liverpool' },
+    ]
+    for (const pair of pairs) {
+      const replica = productFixtures.find((item) => item.manufacturerSku === pair.replica)!
+      const authentic = productFixtures.find((item) => item.manufacturerSku === pair.authentic)!
+      expect(replica.id, pair.replica).not.toBe(authentic.id)
+      expect(pair.replica).not.toBe(pair.authentic)
+      for (const product of [replica, authentic]) {
+        expect(product.clubId).toBe(pair.club)
+        expect(product.season).toBe('2025/26')
+        expect(product.kitType).toBe('home')
+      }
+      expect(replica.authenticity).toBe('replica')
+      expect(authentic.authenticity).toBe('authentic')
+    }
+  })
 
   it('★確認時点の価格・在庫を商品データへ入れていない★', () => {
     const ids = new Set<string>(

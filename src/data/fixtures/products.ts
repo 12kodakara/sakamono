@@ -218,7 +218,10 @@ export const productFixtures: Product[] = [
     nameJa: 'レアル・マドリード 2025/26 ホーム オーセンティック ユニフォーム',
     season: '2025/26',
     manufacturer: 'adidas',
-    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
+    // 公式確認: adidas公式の商品情報で品番・商品名・カラー・仕様を人手で確認済み（2026-09-23）。
+    // ★レプリカ（JJ1931）とは別商品・別品番。取り違えると価格比較が大きく狂う。★
+    // 記録: docs/data-sources/manual-official-checks.md（JV5918）
+    manufacturerSku: 'JV5918',
     jan: null,
     ean: null,
     category: 'kits',
