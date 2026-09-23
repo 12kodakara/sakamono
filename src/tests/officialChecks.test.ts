@@ -90,6 +90,18 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    sku: 'JV6488',
+    id: 'product-lfc-2526-away-authentic',
+    clubId: 'club-liverpool',
+    season: '2025/26',
+    // ★レプリカ（JV6487）とは1文字違いの別品番。★
+    kitType: 'away',
+    authenticity: 'authentic',
+    manufacturer: 'adidas',
+    gender: 'men',
+    sleeve: 'short',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -122,12 +134,13 @@ const SHARED_SKU_EXCEPTIONS: Record<string, string[]> = {
 const SAMPLE_LISTINGS_REMAIN = new Set([
   'product-rma-2526-home-replica',
   'product-rma-2526-home-authentic',
+  'product-lfc-2526-away-authentic',
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は8件で、重複していない', () => {
+  it('確認済みの品番は9件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(8)
+    expect(skus).toHaveLength(9)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -161,8 +174,10 @@ describe('★人手で公式確認した商品★', () => {
    */
   it('★同じホームでも、レプリカとオーセンティックは別の品番★', () => {
     const pairs = [
-      { replica: 'JJ1931', authentic: 'JV5918', club: 'club-real-madrid' },
-      { replica: 'JV6423', authentic: 'JY4237', club: 'club-liverpool' },
+      { replica: 'JJ1931', authentic: 'JV5918', club: 'club-real-madrid', kitType: 'home' },
+      { replica: 'JV6423', authentic: 'JY4237', club: 'club-liverpool', kitType: 'home' },
+      // ★1文字しか違わない組。取り違えると価格比較が大きく狂う。★
+      { replica: 'JV6487', authentic: 'JV6488', club: 'club-liverpool', kitType: 'away' },
     ]
     for (const pair of pairs) {
       const replica = productFixtures.find((item) => item.manufacturerSku === pair.replica)!
@@ -172,10 +187,38 @@ describe('★人手で公式確認した商品★', () => {
       for (const product of [replica, authentic]) {
         expect(product.clubId).toBe(pair.club)
         expect(product.season).toBe('2025/26')
-        expect(product.kitType).toBe('home')
+        expect(product.kitType).toBe(pair.kitType)
       }
       expect(replica.authenticity).toBe('replica')
       expect(authentic.authenticity).toBe('authentic')
+    }
+  })
+
+  /*
+   * ★メーカーの誤記を戻さない。★
+   *   2025/26シーズンのリヴァプールのサプライヤーは adidas です（Nikeは2024/25まで）。
+   *   メーカーが違うと、照合で全件が別メーカー扱いになり比較が成立しません。
+   */
+  it('★リヴァプールの2025/26は adidas（Nikeに戻っていない）★', () => {
+    /*
+     * ★まだ直していない既知の誤記★
+     *   トレーニングトップも同じ誤記（Nike）ですが、どの実商品を指すか特定できておらず、
+     *   公式確認の対象にできていません（docs/data-sources/placeholder-audit.md）。
+     *   公式情報で商品を特定できた時点で、ここから外して adidas へ直します。
+     */
+    const KNOWN_WRONG = new Set(['product-lfc-2526-training-top'])
+    const wrong = productFixtures
+      .filter((product) => product.clubId === 'club-liverpool' && product.season === '2025/26')
+      .filter((product) => product.manufacturer !== 'adidas' && !KNOWN_WRONG.has(product.id))
+      .map((product) => `${product.id}: ${product.manufacturer}`)
+    expect(wrong).toEqual([])
+  })
+
+  it('★確認済み商品のメーカーが公式表示のまま★', () => {
+    for (const checked of CONFIRMED) {
+      const product = productFixtures.find((item) => item.id === checked.id)!
+      expect(product.manufacturer, checked.sku).toBe(checked.manufacturer)
+      expect(product.manufacturer, checked.sku).not.toBe('Nike')
     }
   })
 

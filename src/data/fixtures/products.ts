@@ -69,8 +69,13 @@ export const productFixtures: Product[] = [
     name: 'Liverpool FC 2025/26 Away Authentic Shirt',
     nameJa: 'リヴァプール 2025/26 アウェイ オーセンティック ユニフォーム',
     season: '2025/26',
-    manufacturer: 'Nike',
-    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
+    // 公式確認: 2025/26のリヴァプールのサプライヤーは adidas。
+    // ★以前 Nike となっていたのは開発用fixtureの誤記。公式確認にもとづき訂正（2026-09-23）。★
+    manufacturer: 'adidas',
+    // 公式確認: adidas公式の商品情報で品番・商品名・カラー・仕様を人手で確認済み（2026-09-23）。
+    // ★レプリカ（JV6487）とは別商品・別品番。1文字違いなので取り違えに注意。★
+    // 記録: docs/data-sources/manual-official-checks.md（JV6488）
+    manufacturerSku: 'JV6488',
     jan: null,
     ean: null,
     category: 'kits',
