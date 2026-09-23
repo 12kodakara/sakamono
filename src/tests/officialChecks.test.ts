@@ -102,6 +102,18 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    // ★Nikeのスタイル番号は「品番-カラー番号」の形。色違いは別番号になる。★
+    sku: 'HJ4590-456',
+    id: 'product-fcb-2526-home-replica',
+    clubId: 'club-fc-barcelona',
+    season: '2025/26',
+    kitType: 'home',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -135,12 +147,13 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
   'product-rma-2526-home-replica',
   'product-rma-2526-home-authentic',
   'product-lfc-2526-away-authentic',
+  'product-fcb-2526-home-replica',
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は9件で、重複していない', () => {
+  it('確認済みの品番は10件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(9)
+    expect(skus).toHaveLength(10)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -217,8 +230,25 @@ describe('★人手で公式確認した商品★', () => {
   it('★確認済み商品のメーカーが公式表示のまま★', () => {
     for (const checked of CONFIRMED) {
       const product = productFixtures.find((item) => item.id === checked.id)!
+      // メーカーはクラブごとに違う（リヴァプールとレアルは adidas、バルセロナは Nike）。
+      // ここでは公式表示と一致しているかだけを見る。
       expect(product.manufacturer, checked.sku).toBe(checked.manufacturer)
-      expect(product.manufacturer, checked.sku).not.toBe('Nike')
+    }
+  })
+
+  /*
+   * ★品番の形をメーカーごとに固定する。★
+   *   adidas は英数字6桁（JV6423 など）、Nike は「品番-カラー番号」（HJ4590-456）。
+   *   形が崩れていたら、別メーカーの番号を取り違えている可能性があります。
+   */
+  it('★品番の形がメーカーと合っている★', () => {
+    for (const checked of CONFIRMED) {
+      if (checked.manufacturer === 'adidas') {
+        expect(checked.sku, checked.id).toMatch(/^[A-Z]{2}\d{4}$/)
+      }
+      if (checked.manufacturer === 'Nike') {
+        expect(checked.sku, checked.id).toMatch(/^[A-Z]{2}\d{4}-\d{3}$/)
+      }
     }
   })
 

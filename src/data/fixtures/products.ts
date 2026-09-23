@@ -159,7 +159,10 @@ export const productFixtures: Product[] = [
     nameJa: 'FCバルセロナ 2025/26 ホーム レプリカ ユニフォーム',
     season: '2025/26',
     manufacturer: 'Nike',
-    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
+    // 公式確認: Nike公式の商品ページで商品名・スタイル番号・カラー・仕様を人手で確認済み（2026-09-23）。
+    // ★Nikeのスタイル番号は「品番-カラー番号」の形（HJ4590-456）。色違いは別番号になる。★
+    // 記録: docs/data-sources/manual-official-checks.md（HJ4590-456）
+    manufacturerSku: 'HJ4590-456',
     jan: null,
     ean: null, // 未確認（開発用の仮コードを削除）
     category: 'kits',
