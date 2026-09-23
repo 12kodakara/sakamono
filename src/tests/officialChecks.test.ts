@@ -149,6 +149,19 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    // ★2024/25 は Nike（2025/26 から adidas）。シーズンで取り違えない。★
+    // ★メンズ版の番号。Older Kids 版（FN9154-688）とは別商品。★
+    sku: 'FN8798-688',
+    id: 'product-lfc-2425-home-replica',
+    clubId: 'club-liverpool',
+    season: '2024/25',
+    kitType: 'home',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -186,12 +199,13 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
   'product-thfc-2526-home-replica',
   'product-thfc-2526-away-replica',
   'product-fcb-2526-third-replica',
+  'product-lfc-2425-home-replica',
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は13件で、重複していない', () => {
+  it('確認済みの品番は14件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(13)
+    expect(skus).toHaveLength(14)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -289,6 +303,19 @@ describe('★人手で公式確認した商品★', () => {
    *   2025/26シーズンのリヴァプールのサプライヤーは adidas です（Nikeは2024/25まで）。
    *   メーカーが違うと、照合で全件が別メーカー扱いになり比較が成立しません。
    */
+  it('★リヴァプールの2024/25は Nike（adidasにしない）★', () => {
+    /*
+     * サプライヤーはシーズンで変わります。2024/25 は Nike、2025/26 から adidas。
+     * 「クラブ＝このメーカー」と決め打ちして、前シーズンの商品まで
+     * 書き換えてしまわないようにします。
+     */
+    const wrong = productFixtures
+      .filter((product) => product.clubId === 'club-liverpool' && product.season === '2024/25')
+      .filter((product) => product.manufacturer !== 'Nike')
+      .map((product) => `${product.id}: ${product.manufacturer}`)
+    expect(wrong).toEqual([])
+  })
+
   it('★リヴァプールの2025/26は adidas（Nikeに戻っていない）★', () => {
     /*
      * ★まだ直していない既知の誤記★

@@ -262,7 +262,11 @@ export const productFixtures: Product[] = [
     nameJa: 'リヴァプール 2024/25 ホーム レプリカ ユニフォーム',
     season: '2024/25',
     manufacturer: 'Nike',
-    manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
+    // 公式確認: Nike公式の商品ページで商品名・スタイル番号・カラー・仕様を人手で確認済み（2026-09-23）。
+    // ★2024/25のリヴァプールのサプライヤーは Nike（2025/26から adidas）。シーズンで取り違えないこと。★
+    // ★メンズ版の番号。Older Kids版（FN9154-688）など別対象の番号と混同しないこと。★
+    // 記録: docs/data-sources/manual-official-checks.md（FN8798-688）
+    manufacturerSku: 'FN8798-688',
     jan: null,
     ean: null, // 未確認（開発用の仮コードを削除）
     category: 'kits',
