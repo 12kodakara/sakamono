@@ -22,7 +22,13 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { listingFixtures, productFixtures, storeFixtures } from '@/data/fixtures'
+import {
+  domesticMatchFixtures,
+  listingFixtures,
+  priceSnapshotFixtures,
+  productFixtures,
+  storeFixtures,
+} from '@/data/fixtures'
 
 /** 「20」で始まる13桁＝店舗内管理用の予約番号。実在の商品には付かない。 */
 const PLACEHOLDER_CODE = /^20\d{11}$/
@@ -78,5 +84,57 @@ describe('★商品データにダミーを混ぜない★', () => {
     expect(sampleStores.length).toBeLessThanOrEqual(4)
     // サンプルの販売元は、実在の店名を名乗らない（誤解を招かないため）
     for (const store of sampleStores) expect(store.name).toMatch(/サンプル/)
+  })
+})
+
+/* ============================================================
+ * 重複していた仮商品の削除（2026-09-23）
+ *
+ * リヴァプールの「ホーム レプリカ（ウィメンズ）」は、公式確認済みの
+ * JV6423 と、クラブ・シーズン・種類・仕様・袖まで同じで、違いは性別の値だけでした。
+ * 独立した品番が無く、作られた経緯も照合の検証用だったため削除しています。
+ *   監査記録: docs/data-sources/placeholder-audit.md
+ * ========================================================== */
+
+describe('★重複していた仮商品を戻さない★', () => {
+  it('ウィメンズのホーム レプリカが商品データに無い', () => {
+    const found = productFixtures.filter(
+      (product) =>
+        product.id === 'product-lfc-2526-womens-home-replica' ||
+        product.slug === 'liverpool-2025-26-womens-home-replica',
+    )
+    expect(found).toEqual([])
+  })
+
+  it('公式確認済みの JV6423 と、判定保留の2商品は残っている', () => {
+    const ids = new Set(productFixtures.map((product) => product.id))
+    // JV6423（公式確認済み・Grade A）
+    expect(ids.has('product-lfc-2526-home-replica')).toBe(true)
+    expect(
+      productFixtures.find((product) => product.id === 'product-lfc-2526-home-replica')?.manufacturerSku,
+    ).toBe('JV6423')
+    // マーキング版（バリエーション）と、調査待ちのゴールキーパー
+    expect(ids.has('product-lfc-2526-home-replica-salah')).toBe(true)
+    expect(ids.has('product-lfc-2526-goalkeeper-replica')).toBe(true)
+  })
+
+  it('商品の件数と、ユニフォームの件数', () => {
+    expect(productFixtures).toHaveLength(19)
+    expect(productFixtures.filter((product) => product.category === 'kits')).toHaveLength(16)
+  })
+
+  it('★削除した商品を指す掲載・照合・価格履歴が残っていない★', () => {
+    const productIds = new Set(productFixtures.map((product) => product.id))
+    for (const listing of listingFixtures) {
+      expect(productIds.has(listing.productId), `掲載 ${listing.id} の参照先`).toBe(true)
+    }
+    const listingIds = new Set(listingFixtures.map((listing) => listing.id))
+    for (const match of domesticMatchFixtures) {
+      expect(productIds.has(match.productId), `照合 ${match.id} の商品`).toBe(true)
+      expect(listingIds.has(match.storeListingId), `照合 ${match.id} の掲載`).toBe(true)
+    }
+    for (const snapshot of priceSnapshotFixtures) {
+      expect(listingIds.has(snapshot.storeListingId), `価格履歴 ${snapshot.id} の掲載`).toBe(true)
+    }
   })
 })

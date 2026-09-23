@@ -304,11 +304,14 @@ describe('★「種類から探す」の説明は、同じ種類の中の違い�
     expect(profile.kitGuideNote).toBeNull()
   })
 
-  it('リヴァプールの説明文は変わらない（ホームの中に5項目すべての違いがある）', async () => {
+  it('リヴァプールの説明文は、ホームの中にある違いだけを挙げる', async () => {
     const { profile } = await liverpoolProfile()
+    // ウィメンズは、JV6423 と重複していた仮の商品を削除したため無くなった
+    // （docs/data-sources/placeholder-audit.md）。説明文からも自動で消える。
     expect(profile.kitGuideNote).toBe(
-      '同じ種類のユニフォームでも、レプリカとオーセンティック、半袖と長袖、大人用と子供用、メンズとウィメンズ、無地と選手名入りは別の商品で、価格も違います。',
+      '同じ種類のユニフォームでも、レプリカとオーセンティック、半袖と長袖、大人用と子供用、無地と選手名入りは別の商品で、価格も違います。',
     )
+    expect(profile.kitGuideNote).not.toContain('ウィメンズ')
   })
 })
 
