@@ -100,7 +100,10 @@ Liverpool / Tottenham Hotspur / FC Barcelona / Real Madrid
 
 ### 必要なもの
 
-- [Node.js](https://nodejs.org/) 20 以上（開発時の確認は v24 で行っています）
+- [Node.js](https://nodejs.org/) **22 以上**
+  - GitHub Actions が使うのも 22 です（`.github/workflows/deploy-pages.yml`）。
+  - `package.json` の `engines` にも `>=22` と書いてあります。
+  - 自宅PCでの確認は v24 で行っています。
 
 ### 手順
 
@@ -123,6 +126,14 @@ npm run dev
 
 起動したら、ブラウザで **http://localhost:3000** を開いてください。
 止めるときはターミナルで `Ctrl + C` を押します。
+
+### 2台のPCで作業する場合
+
+自宅PCと会社PCの2台で開発しています。手順は **[docs/two-pc-workflow.md](docs/two-pc-workflow.md)** にまとめてあります。
+
+- 正本は GitHub です。作業前に `git pull`、作業後に `commit` → `push`。
+- 会社PCには Node.js がありません。検証は GitHub Actions が行います。
+- `.env.local`（APIキー）は持ち出さず、必要なPCで作り直してください。
 
 ---
 

@@ -38,3 +38,25 @@ Thumbs.db
 # ログ
 *.log
 npm-debug.log*
+
+# 2台運用（自宅PC・会社PC）で追加 ------------------------------
+# 秘密情報は、ファイル名が少し違っても絶対に取り込まれないようにする。
+# ★このリポジトリは public（全世界に公開）です。★
+#   一度pushすると、あとから消しても取得済みの人には残ります。
+#
+# .env の仲間（.env.local / .env.production など）はすべて除外。
+# ただし .env.example だけは例外（値が空の雛形なので公開してよい）。
+.env.*
+!.env.example
+
+# 鍵・証明書・認証情報のファイル
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+*.jks
+credentials.json
+credentials.*.json
+secrets.json
+service-account*.json

@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "サカモノ - 海外サッカーグッズを日本到着推定額で比較するサイト",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
