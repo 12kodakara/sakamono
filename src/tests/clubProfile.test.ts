@@ -293,14 +293,26 @@ describe('★ユニフォーム一覧（/kits/）へのリンク★', () => {
 
 describe('★「種類から探す」の説明は、同じ種類の中の違いだけ★', () => {
   it('バルセロナ（ホーム＝メンズ、サード＝ウィメンズ）では「メンズとウィメンズ」と書かない', async () => {
+    /*
+     * ホームはメンズ、サードはウィメンズですが、これは「種類が違う」だけで
+     * 同じ種類の中の違いではありません。説明文へ持ち出さないことを守ります。
+     *
+     * 一方アウェイには、同じ種類の中にレプリカとオーセンティックが並んでいます。
+     * こちらは買う人が迷う本物の違いなので、説明文に出るのが正しい動きです。
+     */
     const { profile } = await pageProfile('fc-barcelona')
-    expect(profile.kitGroups.map((group) => group.label)).toEqual(['ホーム', 'サード'])
-    expect(profile.kitGuideNote).toBeNull()
+    expect(profile.kitGroups.map((group) => group.label)).toEqual(['ホーム', 'アウェイ', 'サード'])
+    expect(profile.kitGuideNote).toBe(
+      '同じ種類のユニフォームでも、レプリカとオーセンティックは別の商品で、価格も違います。',
+    )
+    expect(profile.kitGuideNote).not.toContain('ウィメンズ')
+    expect(profile.kitGuideNote).not.toContain('メンズ')
   })
 
-  it('トッテナム（ホーム・アウェイとも同じ仕様）は説明文なし', async () => {
+  it('トッテナム（ホーム・アウェイ・サードとも同じ仕様）は説明文なし', async () => {
+    // 3種類ありますが、どれもメンズ・レプリカ・半袖で、同じ種類の中に違いがありません。
     const { profile } = await pageProfile('tottenham')
-    expect(profile.kitGroups.length).toBe(2)
+    expect(profile.kitGroups.map((group) => group.label)).toEqual(['ホーム', 'アウェイ', 'サード'])
     expect(profile.kitGuideNote).toBeNull()
   })
 

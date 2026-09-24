@@ -15,7 +15,21 @@ import { describe, expect, it } from 'vitest'
 import { clubFixtures, listingFixtures, productFixtures, storeFixtures } from '@/data/fixtures'
 
 const PRODUCTS_SOURCE = readFileSync('src/data/fixtures/products.ts', 'utf8')
-const RECORD = readFileSync('docs/data-sources/manual-official-checks.md', 'utf8')
+/*
+ * 公式確認の記録は、確認した相手によって2つに分かれています。
+ *   manual … 運営者がブラウザで確認（adidas など、機械では開けない公式サイト）
+ *   page   … 公式の商品ページを直接開いて確認（Nike など、robots.txt が許可している）
+ * どちらに載っているかは、商品ごとの record で指定します（既定は manual）。
+ */
+const RECORDS = {
+  manual: readFileSync('docs/data-sources/manual-official-checks.md', 'utf8'),
+  page: readFileSync('docs/data-sources/official-page-checks.md', 'utf8'),
+} as const
+
+const RECORD_FILE = {
+  manual: 'manual-official-checks.md',
+  page: 'official-page-checks.md',
+} as const
 
 /** 記録に書いた公式表示の値（画面に表示が無かった項目は含めない）。 */
 const CONFIRMED = [
@@ -162,6 +176,45 @@ const CONFIRMED = [
     sleeve: 'short',
   },
   {
+    // ★Nikeの「Stadium」＝レプリカ。「Match」＝オーセンティック。★
+    sku: 'HM3207-741',
+    id: 'product-thfc-2526-third-replica',
+    clubId: 'club-tottenham',
+    season: '2025/26',
+    kitType: 'third',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+    record: 'page',
+  },
+  {
+    // ★オーセンティック（HJ4554-784）とはカラー表記が同じ。番号で見分けること。★
+    sku: 'HJ4603-784',
+    id: 'product-fcb-2526-away-replica',
+    clubId: 'club-fc-barcelona',
+    season: '2025/26',
+    kitType: 'away',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+    record: 'page',
+  },
+  {
+    // ★レプリカ（HJ4603-784）とはカラー表記が同じ。番号で見分けること。★
+    sku: 'HJ4554-784',
+    id: 'product-fcb-2526-away-authentic',
+    clubId: 'club-fc-barcelona',
+    season: '2025/26',
+    kitType: 'away',
+    authenticity: 'authentic',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+    record: 'page',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -203,9 +256,9 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は14件で、重複していない', () => {
+  it('確認済みの品番は17件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(14)
+    expect(skus).toHaveLength(17)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -213,7 +266,10 @@ describe('★人手で公式確認した商品★', () => {
     it(`${checked.sku} は公式表示と一致する値のまま`, () => {
       const product = productFixtures.find((item) => item.id === checked.id)
       expect(product, `${checked.id} が見つかりません`).toBeDefined()
-      const { sku, ...expected } = checked
+      // record は「どちらの記録文書に載っているか」の印なので、商品データとは照合しない
+      const { sku, ...rest } = checked
+      const expected: Record<string, unknown> = { ...rest }
+      delete expected.record
       expect(product).toMatchObject({ ...expected, manufacturerSku: sku, category: 'kits' })
     })
 
@@ -227,8 +283,9 @@ describe('★人手で公式確認した商品★', () => {
 
     it(`${checked.sku} の公式確認の記録がある`, () => {
       // 記録（docs）と商品データ（コメント）の両方から追跡できること
-      expect(RECORD).toContain(`${checked.sku}（${checked.id}）`)
-      expect(PRODUCTS_SOURCE).toContain(`manual-official-checks.md（${checked.sku}）`)
+      const where = ('record' in checked ? checked.record : 'manual') as keyof typeof RECORDS
+      expect(RECORDS[where]).toContain(`${checked.sku}（${checked.id}）`)
+      expect(PRODUCTS_SOURCE).toContain(`${RECORD_FILE[where]}（${checked.sku}）`)
     })
   }
 

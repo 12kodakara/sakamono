@@ -313,6 +313,78 @@ export const productFixtures: Product[] = [
     image: placeholder('placeholder-kit-away.svg', 'アウェイユニフォーム'),
     active: true,
   },
+  {
+    id: 'product-thfc-2526-third-replica',
+    clubId: 'club-tottenham',
+    slug: 'tottenham-2025-26-third-replica',
+    name: 'Tottenham Hotspur 2025/26 Third Replica Shirt',
+    nameJa: 'トッテナム 2025/26 サード レプリカ ユニフォーム',
+    season: '2025/26',
+    manufacturer: 'Nike',
+    // 公式確認: Nike公式の商品ページで商品名・スタイル番号・カラー・対象・仕様を確認済み（2026-09-25）。
+    // ★公式表記は「Stadium」＝レプリカ。「Match」＝オーセンティックとは別商品・別番号。★
+    // ★ホーム（HJ4598-101）・アウェイ（HJ4609-011）とも別番号。★
+    // 記録: docs/data-sources/official-page-checks.md（HM3207-741）
+    manufacturerSku: 'HM3207-741',
+    jan: null,
+    ean: null,
+    category: 'kits',
+    kitType: 'third',
+    authenticity: 'replica',
+    sleeve: 'short',
+    gender: 'men',
+    player: null,
+    image: placeholder('placeholder-kit-third.svg', 'サードユニフォーム'),
+    active: true,
+  },
+  {
+    id: 'product-fcb-2526-away-replica',
+    clubId: 'club-fc-barcelona',
+    slug: 'fc-barcelona-2025-26-away-replica',
+    name: 'FC Barcelona 2025/26 Away Replica Shirt',
+    nameJa: 'FCバルセロナ 2025/26 アウェイ レプリカ ユニフォーム',
+    season: '2025/26',
+    manufacturer: 'Nike',
+    // 公式確認: Nike公式の商品ページで商品名・スタイル番号・カラー・対象・仕様を確認済み（2026-09-25）。
+    // ★公式表記は「Stadium」＝レプリカ。オーセンティック（HJ4554-784）とは別商品・別番号。★
+    // ★番号の末尾 784 は色番号。アウェイとオーセンティックで同じ色でも、前半の番号が違う。★
+    // 記録: docs/data-sources/official-page-checks.md（HJ4603-784）
+    manufacturerSku: 'HJ4603-784',
+    jan: null,
+    ean: null,
+    category: 'kits',
+    kitType: 'away',
+    authenticity: 'replica',
+    sleeve: 'short',
+    gender: 'men',
+    player: null,
+    image: placeholder('placeholder-kit-away.svg', 'アウェイユニフォーム'),
+    active: true,
+  },
+  {
+    id: 'product-fcb-2526-away-authentic',
+    clubId: 'club-fc-barcelona',
+    slug: 'fc-barcelona-2025-26-away-authentic',
+    name: 'FC Barcelona 2025/26 Away Authentic Shirt',
+    nameJa: 'FCバルセロナ 2025/26 アウェイ オーセンティック ユニフォーム',
+    season: '2025/26',
+    manufacturer: 'Nike',
+    // 公式確認: Nike公式の商品ページで商品名・スタイル番号・カラー・対象・仕様を確認済み（2026-09-25）。
+    // ★公式表記は「Match」＝オーセンティック（選手仕様）。レプリカ（HJ4603-784）とは別商品・別番号。★
+    // ★色は同じ（Team Gold / Persian Violet）。色が同じでも仕様が違えば別番号になる。★
+    // 記録: docs/data-sources/official-page-checks.md（HJ4554-784）
+    manufacturerSku: 'HJ4554-784',
+    jan: null,
+    ean: null,
+    category: 'kits',
+    kitType: 'away',
+    authenticity: 'authentic',
+    sleeve: 'short',
+    gender: 'men',
+    player: null,
+    image: placeholder('placeholder-kit-away.svg', 'アウェイユニフォーム'),
+    active: true,
+  },
   /* ----- Liverpool（第4.6段階：照合の精度を測るために追加）--------
    *
    * ★ここから下は「照合エンジンを確かめるための商品」です。★

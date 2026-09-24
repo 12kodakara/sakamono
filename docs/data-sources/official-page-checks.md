@@ -1,0 +1,108 @@
+# 公式商品ページを直接開いて確認した記録
+
+**方式名**: 公式商品ページの直接確認（OFFICIAL_PAGE_CHECK）
+**目的**: robots.txt が許可しており、機械的な取得を拒否していない公式サイトについて、
+商品ページを1件ずつ開き、画面に表示されている値だけを商品データの根拠として記録する。
+
+---
+
+## 0. この方式のきまり
+
+| 項目 | きまり |
+| --- | --- |
+| 確認する人 | Claude Code（公式の商品ページを1件ずつ開く） |
+| 使ってよい相手 | **robots.txt が許可している公式ドメインだけ** |
+| やらないこと | アクセス拒否（403等）の迂回・CAPTCHAの回避・非公開APIの利用・一括クロール |
+| 記録するもの | 画面に表示されていた値だけ。**表示が無い項目は書かない（推測で補わない）** |
+| 主な識別子 | **メーカー品番（スタイル番号）**。完全一致したときだけ「同一商品」とする |
+| 価格・在庫 | **変動情報**。商品データへ保存しない（この記録にも残さない） |
+| 画像 | 公式画像を転載しない。画像URLも登録しない |
+
+### `manual-official-checks.md` との違い
+
+| | この文書 | `manual-official-checks.md` |
+| --- | --- | --- |
+| 確認したのは | Claude Code | サカモノの運営者（ブラウザ） |
+| 対象 | 機械的に開ける公式サイト（Nike など） | 開けない公式サイト（adidas など） |
+
+**2つを混ぜないために文書を分けています。** どちらの記録に載っているかは、
+商品データのコメントと `src/tests/officialChecks.test.ts` の `record` で分かります。
+
+### 相手ごとの可否（2026-09-25 時点）
+
+| ドメイン | robots.txt | 商品ページ取得 | 判定 |
+| --- | --- | --- | --- |
+| `www.nike.com` | 取得可。冒頭に `just crawl it.`。`*/p/` 等は Disallow だが **`/t/`（商品ページ）は対象外** | 200 | ✅ この方式を使う |
+| `www.adidas.com` / `www.adidas.co.uk` | robots.txt 自体が **403** | 403 | ❌ 使わない（迂回しない） |
+| `store.liverpoolfc.com` | 取得可 | — | ❌ 使わない（利用規約 第15.7条。`liverpool.md` 参照） |
+
+> Nike は品番からも商品ページへ到達できます（`https://www.nike.com/id/t/x/<品番>`）。
+> シーズンが変わって一覧から外れた商品でも、品番があれば確認し直せます。
+
+---
+
+## 1. 記録
+
+### 1-1. HM3207-741（product-thfc-2526-third-replica）
+
+| 項目 | 公式表示 | サカモノの登録値 | 照合 |
+| --- | --- | --- | --- |
+| 確認方法 | Nike公式の商品ページを直接確認 | — | — |
+| 確認日 | 2026-09-25 | — | — |
+| 商品名 | Tottenham Hotspur 2025/26 Stadium Third Men's Nike Dri-FIT Total 90 Football Replica Shirt | Tottenham Hotspur 2025/26 Third Replica Shirt | ✅ 同一商品 |
+| スタイル番号 | HM3207-741 | HM3207-741 | ✅ 一致 |
+| クラブ | Tottenham Hotspur | トッテナム・ホットスパー | ✅ 一致 |
+| シーズン | 2025/26 | 2025/26 | ✅ 一致 |
+| 種類 | Third | third | ✅ 一致 |
+| 仕様 | **Stadium**（＝レプリカ） | replica | ✅ 一致 |
+| メーカー | Nike | Nike | ✅ 一致 |
+| 対象 | Men's | men | ✅ 一致 |
+| カラー | Dynamic Yellow/Blue Void/Pacific Blue/Blue Void | （項目なし） | 参考 |
+| 袖 | 表示なし | 半袖 | 公式表示なし（矛盾なし） |
+
+### 1-2. HJ4603-784（product-fcb-2526-away-replica）
+
+| 項目 | 公式表示 | サカモノの登録値 | 照合 |
+| --- | --- | --- | --- |
+| 確認方法 | Nike公式の商品ページを直接確認 | — | — |
+| 確認日 | 2026-09-25 | — | — |
+| 商品名 | F.C. Barcelona 2025/26 Stadium Away Men's Kobe Dri-FIT Football Replica Shirt | FC Barcelona 2025/26 Away Replica Shirt | ✅ 同一商品 |
+| スタイル番号 | HJ4603-784 | HJ4603-784 | ✅ 一致 |
+| クラブ | F.C. Barcelona | FCバルセロナ | ✅ 一致 |
+| シーズン | 2025/26 | 2025/26 | ✅ 一致 |
+| 種類 | Away | away | ✅ 一致 |
+| 仕様 | **Stadium**（＝レプリカ） | replica | ✅ 一致 |
+| メーカー | Nike | Nike | ✅ 一致 |
+| 対象 | Men's | men | ✅ 一致 |
+| カラー | Team Gold/Team Gold/Persian Violet/Black | （項目なし） | 参考 |
+| 袖 | 表示なし | 半袖 | 公式表示なし（矛盾なし） |
+
+### 1-3. HJ4554-784（product-fcb-2526-away-authentic）
+
+| 項目 | 公式表示 | サカモノの登録値 | 照合 |
+| --- | --- | --- | --- |
+| 確認方法 | Nike公式の商品ページを直接確認 | — | — |
+| 確認日 | 2026-09-25 | — | — |
+| 商品名 | F.C. Barcelona 2025/26 Match Away Men's Kobe Dri-FIT ADV Football Authentic Shirt | FC Barcelona 2025/26 Away Authentic Shirt | ✅ 同一商品 |
+| スタイル番号 | HJ4554-784 | HJ4554-784 | ✅ 一致 |
+| クラブ | F.C. Barcelona | FCバルセロナ | ✅ 一致 |
+| シーズン | 2025/26 | 2025/26 | ✅ 一致 |
+| 種類 | Away | away | ✅ 一致 |
+| 仕様 | **Match**（＝オーセンティック・選手仕様） | authentic | ✅ 一致 |
+| メーカー | Nike | Nike | ✅ 一致 |
+| 対象 | Men's | men | ✅ 一致 |
+| カラー | Team Gold/Team Gold/Persian Violet/Black | （項目なし） | 参考 |
+| 袖 | 表示なし | 半袖 | 公式表示なし（矛盾なし） |
+
+---
+
+## 2. 気をつけること
+
+- **HJ4603-784（Stadium）と HJ4554-784（Match）はカラー表記が同じです。**
+  色が同じでも仕様（レプリカ／オーセンティック）が違えば別商品・別番号です。
+  価格は1万円以上違うことがあるため、取り違えると比較が大きく狂います。
+- **「Stadium」＝レプリカ、「Match」＝オーセンティック**が Nike の言い方です。
+  商品名に Replica / Authentic とも書かれているので、両方で確認しています。
+- Nike のスタイル番号は「品番-カラー番号」の形です。色違いは別番号になります。
+- **これらの商品には掲載（価格）を付けていません。** 価格は変動情報で、公式確認の対象外です。
+  価格が無い商品は既存ルール（`isProductListable`）で noindex のままになります。
