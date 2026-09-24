@@ -94,7 +94,12 @@ export const productFixtures: Product[] = [
     name: 'Liverpool FC 2025/26 Training Top',
     nameJa: 'リヴァプール 2025/26 トレーニングトップ',
     season: '2025/26',
-    manufacturer: 'Nike',
+    // ★メーカーは未確認です（2026-09-25）。★
+    //   元は 'Nike' でしたが、2025/26のリヴァプールのサプライヤーは adidas であり、
+    //   Nike は誤りです。ただしこの商品がどの実在商品なのかを特定できていないため
+    //   （docs/data-sources/placeholder-audit.md）、adidas と言い切ることもしません。
+    //   確認できていないことを '確認中' で表します（推測で埋めない）。
+    manufacturer: '確認中',
     manufacturerSku: null, // 品番は未確認（開発用の仮の値を削除）
     jan: null,
     ean: null,

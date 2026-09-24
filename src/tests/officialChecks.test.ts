@@ -12,7 +12,7 @@
 
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { listingFixtures, productFixtures, storeFixtures } from '@/data/fixtures'
+import { clubFixtures, listingFixtures, productFixtures, storeFixtures } from '@/data/fixtures'
 
 const PRODUCTS_SOURCE = readFileSync('src/data/fixtures/products.ts', 'utf8')
 const RECORD = readFileSync('docs/data-sources/manual-official-checks.md', 'utf8')
@@ -303,32 +303,85 @@ describe('★人手で公式確認した商品★', () => {
    *   2025/26シーズンのリヴァプールのサプライヤーは adidas です（Nikeは2024/25まで）。
    *   メーカーが違うと、照合で全件が別メーカー扱いになり比較が成立しません。
    */
-  it('★リヴァプールの2024/25は Nike（adidasにしない）★', () => {
+  /*
+   * ★クラブ・シーズンごとの公式サプライヤー表。★
+   *   商品IDを1件ずつ並べるのではなく、この表1つで全商品を検査します。
+   *   クラブやシーズンが増えたときは、ここへ1行足すだけで検査対象に入ります。
+   *
+   *   サプライヤーはシーズンで変わります（リヴァプールは2024/25までNike、
+   *   2025/26からadidas）。「クラブ＝このメーカー」と決め打ちすると、
+   *   前シーズンの商品まで書き換えてしまう事故が起きます。
+   */
+  const SUPPLIER: Record<string, string> = {
+    'club-liverpool|2024/25': 'Nike',
+    'club-liverpool|2025/26': 'adidas',
+    'club-tottenham|2025/26': 'Nike',
+    'club-fc-barcelona|2025/26': 'Nike',
+    'club-real-madrid|2025/26': 'adidas',
+  }
+
+  /** 公式確認ができていないことを表す印。推測で埋めない代わりに使う。 */
+  const UNCONFIRMED = '確認中'
+
+  const supplierOf = (product: (typeof productFixtures)[number]) =>
+    product.season ? SUPPLIER[`${product.clubId}|${product.season}`] : undefined
+
+  it('★サプライヤー表が、登録済みのクラブ・シーズンを網羅している★', () => {
+    // 表に無い組み合わせがあると、以下の検査がすり抜けます。
+    const missing = productFixtures
+      .filter((product) => product.season && !supplierOf(product))
+      .map((product) => `${product.id}: ${product.clubId}|${product.season}`)
+    expect(missing).toEqual([])
+  })
+
+  it('★品番を確認済みの商品は、そのシーズンの公式サプライヤーと一致する★', () => {
     /*
-     * サプライヤーはシーズンで変わります。2024/25 は Nike、2025/26 から adidas。
-     * 「クラブ＝このメーカー」と決め打ちして、前シーズンの商品まで
-     * 書き換えてしまわないようにします。
+     * 2024/25 の Nike と 2025/26 の adidas を、1つの表で両方向から固定します。
+     * どちらかへ寄せて書き換える事故を、これ1本で防ぎます。
      */
     const wrong = productFixtures
-      .filter((product) => product.clubId === 'club-liverpool' && product.season === '2024/25')
-      .filter((product) => product.manufacturer !== 'Nike')
+      .filter((product) => product.manufacturerSku !== null)
+      .filter((product) => supplierOf(product) && product.manufacturer !== supplierOf(product))
+      .map((product) => `${product.id}: ${product.manufacturer}（正しくは ${supplierOf(product)}）`)
+    expect(wrong).toEqual([])
+  })
+
+  it('★品番が未確認の商品は、根拠のないメーカー名を名乗らない★', () => {
+    /*
+     * 品番が確認できていない商品に、確かめていないブランド名を書かないための検査です。
+     * （リヴァプール 2025/26 のトレーニングトップに 'Nike' が入っていた誤りは、
+     *   この検査で自動的に見つかります）
+     *
+     * 名乗ってよいのは次の3つだけです。
+     *   1. そのクラブ・シーズンの公式サプライヤー（表から導ける）
+     *   2. クラブ自身の名前（マフラーなどクラブ自社ブランドの商品）
+     *   3. '確認中'（確認できていないことを正直に示す）
+     */
+    const clubNames = new Set(clubFixtures.flatMap((club) => [club.name, club.nameJa]))
+    const wrong = productFixtures
+      .filter((product) => product.manufacturerSku === null)
+      .filter((product) => {
+        if (product.manufacturer === UNCONFIRMED) return false
+        if (clubNames.has(product.manufacturer)) return false
+        return product.manufacturer !== supplierOf(product)
+      })
       .map((product) => `${product.id}: ${product.manufacturer}`)
     expect(wrong).toEqual([])
   })
 
-  it('★リヴァプールの2025/26は adidas（Nikeに戻っていない）★', () => {
+  it('★メーカーが「確認中」の商品は、価格を持たない（＝検索結果へ出さない）★', () => {
     /*
-     * ★まだ直していない既知の誤記★
-     *   トレーニングトップも同じ誤記（Nike）ですが、どの実商品を指すか特定できておらず、
-     *   公式確認の対象にできていません（docs/data-sources/placeholder-audit.md）。
-     *   公式情報で商品を特定できた時点で、ここから外して adidas へ直します。
+     * 価格が1つでもあると isProductListable が true になり、
+     * sitemap・セール一覧・トップページへ出てしまいます（src/lib/sitemap.ts）。
+     * どの実在商品か分かっていないものを、検索エンジンへ積極的に見せないための検査です。
      */
-    const KNOWN_WRONG = new Set(['product-lfc-2526-training-top'])
-    const wrong = productFixtures
-      .filter((product) => product.clubId === 'club-liverpool' && product.season === '2025/26')
-      .filter((product) => product.manufacturer !== 'adidas' && !KNOWN_WRONG.has(product.id))
-      .map((product) => `${product.id}: ${product.manufacturer}`)
-    expect(wrong).toEqual([])
+    const unconfirmed = new Set(
+      productFixtures.filter((product) => product.manufacturer === UNCONFIRMED).map((p) => p.id),
+    )
+    const listed = listingFixtures
+      .filter((listing) => unconfirmed.has(listing.productId))
+      .map((listing) => `${listing.productId} に掲載 ${listing.id}`)
+    expect(listed).toEqual([])
   })
 
   it('★確認済み商品のメーカーが公式表示のまま★', () => {

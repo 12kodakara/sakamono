@@ -66,19 +66,16 @@ export const listingFixtures: StoreListing[] = [
   }),
 
   /* ===== Liverpool: トレーニングトップ ====================== */
-  /* 国内の比較対象が見つかっていない商品の例（価格差は表示されない） */
-  listing({
-    id: 'listing-lfc-training-official',
-    productId: 'product-lfc-2526-training-top',
-    storeId: 'store-lfc-official',
-    externalId: 'lfc-2526-tr',
-    currency: 'GBP',
-    currentPrice: 54.95,
-    regularPrice: 69.95,
-    inStock: true,
-    lastCheckedAt: CHECKED_AT,
-  }),
-
+  /*
+   * ★掲載を外しました（2026-09-25）。★
+   *   この商品はどの実在商品を指すのか特定できていません。
+   *   価格を持たせると isProductListable が true になり、検索結果・セール一覧・
+   *   トップページへ出てしまうため、掲載ごと外して公開導線から退避させています。
+   *   （商品そのものは残してあります。実商品へ置き換えるときに使います）
+   *
+   *   「国内の比較対象が見つかっていない商品」の表示確認は、
+   *   トッテナム 2025/26 アウェイ（listing-thfc-away-r-select-c）が引き継いでいます。
+   */
   /* ===== Tottenham: ホーム レプリカ ========================= */
   listing({
     id: 'listing-thfc-home-r-official',
