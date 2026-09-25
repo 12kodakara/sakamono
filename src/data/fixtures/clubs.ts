@@ -8,6 +8,7 @@
  *
  * その後、公式一次情報で確認できた商品があるクラブを足しています。
  *   Paris Saint-Germain（2026-09-25 追加。リーグ・アンの最初のクラブ）
+ *   AC Milan（2026-09-25 追加。セリエAの最初のクラブ）
  *
  * 最終的には約100クラブ規模を想定しています。
  * クラブを増やすときはこの配列へ追加するだけでよく、
@@ -77,6 +78,18 @@ export const clubFixtures: Club[] = [
     country: 'フランス',
     officialStoreUrl: 'https://store.psg.fr/',
     displayOrder: 5,
+    active: true,
+  },
+  {
+    // 公式確認: ACミラン公式サイト（acmilan.com）が案内している公式ストアを確認（2026-09-25）。
+    id: 'club-ac-milan',
+    leagueId: 'league-serie-a',
+    slug: 'ac-milan',
+    name: 'AC Milan',
+    nameJa: 'ACミラン',
+    country: 'イタリア',
+    officialStoreUrl: 'https://store.acmilan.com/',
+    displayOrder: 6,
     active: true,
   },
 ]

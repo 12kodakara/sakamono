@@ -612,4 +612,30 @@ export const productFixtures: Product[] = [
     image: placeholder('placeholder-kit-home.svg', 'ホームユニフォーム'),
     active: true,
   },
+  /* ----- AC Milan ------------------------------------------ */
+  {
+    id: 'product-acm-2526-home-replica',
+    clubId: 'club-ac-milan',
+    slug: 'ac-milan-2025-26-home-replica',
+    name: 'AC Milan 2025/26 Home Replica Shirt',
+    nameJa: 'ACミラン 2025/26 ホーム レプリカ ユニフォーム',
+    season: '2025/26',
+    // ★PUMAは自社表記が全角ではなく大文字の PUMA。Nike・adidas と同じく公式の書き方に合わせる。★
+    manufacturer: 'PUMA',
+    // 公式確認: PUMA公式の商品ページで商品名・品番・カラー・対象・仕様を確認済み（2026-09-25）。
+    // ★PUMAの品番は「6桁_2桁」の形（779962_01）。後ろ2桁はカラー番号で、色違いは別番号になる。★
+    // ★オーセンティック（779961_01）とは別商品・別番号。1桁違いなので取り違えに注意。★
+    // 記録: docs/data-sources/official-page-checks.md（779962_01）
+    manufacturerSku: '779962_01',
+    jan: null,
+    ean: null,
+    category: 'kits',
+    kitType: 'home',
+    authenticity: 'replica',
+    sleeve: 'short',
+    gender: 'men',
+    player: null,
+    image: placeholder('placeholder-kit-home.svg', 'ホームユニフォーム'),
+    active: true,
+  },
 ]

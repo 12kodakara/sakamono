@@ -119,8 +119,8 @@ describe('★重複していた仮商品を戻さない★', () => {
   })
 
   it('商品の件数と、ユニフォームの件数', () => {
-    expect(productFixtures).toHaveLength(23)
-    expect(productFixtures.filter((product) => product.category === 'kits')).toHaveLength(20)
+    expect(productFixtures).toHaveLength(24)
+    expect(productFixtures.filter((product) => product.category === 'kits')).toHaveLength(21)
   })
 
   it('★削除した商品を指す掲載・照合・価格履歴が残っていない★', () => {

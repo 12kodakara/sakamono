@@ -141,13 +141,14 @@ describe('fixture データセット', () => {
     expect(leagueFixtures.some((league) => league.slug === 'bundesliga')).toBe(false)
   })
 
-  it('登録済みのクラブは5つ', () => {
+  it('登録済みのクラブは6つ', () => {
     /*
      * MVPの4クラブに、公式一次情報で確認できた商品があるクラブを足していきます。
      * パリ・サンジェルマンは、リーグ・アンで最初に商品が入ったクラブです。
      */
-    expect(clubFixtures.filter((club) => club.active)).toHaveLength(5)
+    expect(clubFixtures.filter((club) => club.active)).toHaveLength(6)
     expect(clubFixtures.map((club) => club.slug).sort()).toEqual([
+      'ac-milan',
       'fc-barcelona',
       'liverpool',
       'paris-saint-germain',
