@@ -9,6 +9,7 @@
  * その後、公式一次情報で確認できた商品があるクラブを足しています。
  *   Paris Saint-Germain（2026-09-25 追加。リーグ・アンの最初のクラブ）
  *   AC Milan（2026-09-25 追加。セリエAの最初のクラブ）
+ *   PSV Eindhoven（2026-09-25 追加。エールディヴィジの最初のクラブ。これで5リーグすべてにクラブが入った）
  *
  * 最終的には約100クラブ規模を想定しています。
  * クラブを増やすときはこの配列へ追加するだけでよく、
@@ -90,6 +91,18 @@ export const clubFixtures: Club[] = [
     country: 'イタリア',
     officialStoreUrl: 'https://store.acmilan.com/',
     displayOrder: 6,
+    active: true,
+  },
+  {
+    // 公式確認: 公式ウェブショップ psvfanstore.nl が「Officiële webshop PSV」と明記（2026-09-25）。
+    id: 'club-psv',
+    leagueId: 'league-eredivisie',
+    slug: 'psv-eindhoven',
+    name: 'PSV Eindhoven',
+    nameJa: 'PSVアイントホーフェン',
+    country: 'オランダ',
+    officialStoreUrl: 'https://www.psvfanstore.nl/',
+    displayOrder: 7,
     active: true,
   },
 ]

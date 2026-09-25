@@ -638,4 +638,28 @@ export const productFixtures: Product[] = [
     image: placeholder('placeholder-kit-home.svg', 'ホームユニフォーム'),
     active: true,
   },
+  /* ----- PSV Eindhoven -------------------------------------- */
+  {
+    id: 'product-psv-2526-home-replica',
+    clubId: 'club-psv',
+    slug: 'psv-eindhoven-2025-26-home-replica',
+    name: 'PSV Eindhoven 2025/26 Home Replica Shirt',
+    nameJa: 'PSVアイントホーフェン 2025/26 ホーム レプリカ ユニフォーム',
+    season: '2025/26',
+    manufacturer: 'PUMA',
+    // 公式確認: PUMA公式の商品ページで商品名・品番・カラー・対象・仕様を確認済み（2026-09-25）。
+    // ★PUMAの品番は「6桁_2桁」の形（780420_01）。後ろ2桁はカラー番号。★
+    // 記録: docs/data-sources/official-page-checks.md（780420_01）
+    manufacturerSku: '780420_01',
+    jan: null,
+    ean: null,
+    category: 'kits',
+    kitType: 'home',
+    authenticity: 'replica',
+    sleeve: 'short',
+    gender: 'men',
+    player: null,
+    image: placeholder('placeholder-kit-home.svg', 'ホームユニフォーム'),
+    active: true,
+  },
 ]

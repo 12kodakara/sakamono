@@ -241,6 +241,19 @@ const CONFIRMED = [
     record: 'page',
   },
   {
+    // ★エールディヴィジ最初のクラブ。これで5リーグすべてにクラブが入った。★
+    sku: '780420_01',
+    id: 'product-psv-2526-home-replica',
+    clubId: 'club-psv',
+    season: '2025/26',
+    kitType: 'home',
+    authenticity: 'replica',
+    manufacturer: 'PUMA',
+    gender: 'men',
+    sleeve: 'short',
+    record: 'page',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -282,9 +295,9 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は19件で、重複していない', () => {
+  it('確認済みの品番は20件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(19)
+    expect(skus).toHaveLength(20)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -403,6 +416,7 @@ describe('★人手で公式確認した商品★', () => {
     'club-real-madrid|2025/26': 'adidas',
     'club-psg|2025/26': 'Nike',
     'club-ac-milan|2025/26': 'PUMA',
+    'club-psv|2025/26': 'PUMA',
   }
 
   /** 公式確認ができていないことを表す印。推測で埋めない代わりに使う。 */

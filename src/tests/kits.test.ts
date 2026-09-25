@@ -63,10 +63,16 @@ describe('一覧の中身', () => {
   it('description は実際の件数・リーグ・種類だけで作る', async () => {
     const { index } = await realIndex()
     expect(index.description).toBe(
-      `プレミアリーグ・ラ・リーガ・セリエA・リーグ・アンの${index.clubs.length}クラブのユニフォーム${index.kits.length}点を、` +
+      `プレミアリーグ・ラ・リーガ・セリエA・リーグ・アン・エールディヴィジの${index.clubs.length}クラブのユニフォーム${index.kits.length}点を、` +
         'クラブや種類（ホーム・アウェイ・サード・ゴールキーパー）で横断して探せます。' +
         '海外ストアの価格がある商品は、日本到着推定額も確認できます。',
     )
+    /*
+     * ★リーグ名を全部並べているので、上限120字に近づいています（現在119字）。★
+     *   5リーグすべてにクラブが入ったため、リーグ名の並びはこれ以上増えません。
+     *   クラブ数・点数の桁が増えて超えそうになったら、
+     *   リーグ名の羅列をやめて「5リーグの」のような書き方へ変えてください。
+     */
     expect([...index.description].length).toBeLessThanOrEqual(120)
   })
 

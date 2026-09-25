@@ -162,6 +162,40 @@
 **オーセンティック版は 779961_01 で、レプリカ（779962_01）と1桁しか違いません。**
 Nike の「Stadium／Match」と同じく、仕様が違えば別商品・別番号です。
 
+### 1-6. 780420_01（product-psv-2526-home-replica）
+
+**エールディヴィジ最初のクラブです。これで5リーグすべてにクラブが入りました。**
+
+| 項目 | 公式表示 | サカモノの登録値 | 照合 |
+| --- | --- | --- | --- |
+| 確認方法 | PUMA公式の商品ページを直接確認 | — | — |
+| 確認日 | 2026-09-25 | — | — |
+| 商品名 | PSV Eindhoven 25/26 Home Replica Men's Soccer Jersey | PSV Eindhoven 2025/26 Home Replica Shirt | ✅ 同一商品 |
+| 品番 | 780420_01 | 780420_01 | ✅ 一致 |
+| クラブ | PSV Eindhoven | PSVアイントホーフェン | ✅ 一致 |
+| シーズン | 25/26 | 2025/26 | ✅ 一致 |
+| 種類 | Home | home | ✅ 一致 |
+| 仕様 | **Replica** | replica | ✅ 一致 |
+| メーカー | PUMA | PUMA | ✅ 一致 |
+| 対象 | Men's | men | ✅ 一致 |
+| カラー | PUMA White-For All Time Red | （項目なし） | 参考 |
+| 袖 | 表示なし | 半袖 | 公式表示なし（矛盾なし） |
+
+クラブ情報（`club-psv`）の確認は、ほかのクラブと手順が違います。
+
+| 項目 | 確認元 | 登録値 |
+| --- | --- | --- |
+| クラブ名 | PUMA公式の商品ページ | PSV Eindhoven |
+| 公式ストア | **ストア自身の表示**（下記） | https://www.psvfanstore.nl/ |
+| 所属リーグ | エールディヴィジ（オランダ） | league-eredivisie |
+
+> **psv.nl（クラブ公式サイト）は中身がJavaScriptで組み立てられており、こちらからは読めませんでした。**
+> HTMLを直接見てもストアへのリンクが1件も含まれていません。
+> そこで `psvfanstore.nl` 側を確認したところ、**そのページ自身が
+> 「PSV FANstore｜Officiële webshop PSV」「Het officiële verkooppunt voor PSV merchandise」
+> （PSV公式ウェブショップ／PSV公式グッズ販売所）と明記**していました。
+> 推測ではなく、ストア自身の表示を根拠にしています。
+
 ### 見送った候補
 
 | 候補 | 品番 | 理由 |
