@@ -588,4 +588,28 @@ export const productFixtures: Product[] = [
     image: placeholder('placeholder-training.svg', 'アンセムジャケット'),
     active: true,
   },
+  /* ----- Paris Saint-Germain -------------------------------- */
+  {
+    id: 'product-psg-2526-home-replica',
+    clubId: 'club-psg',
+    slug: 'paris-saint-germain-2025-26-home-replica',
+    name: 'Paris Saint-Germain 2025/26 Home Replica Shirt',
+    nameJa: 'パリ・サンジェルマン 2025/26 ホーム レプリカ ユニフォーム',
+    season: '2025/26',
+    manufacturer: 'Nike',
+    // 公式確認: Nike公式の商品ページで商品名・スタイル番号・カラー・対象・仕様を確認済み（2026-09-25）。
+    // ★公式表記は「Stadium」＝レプリカ。「Match」＝オーセンティックとは別商品・別番号。★
+    // 記録: docs/data-sources/official-page-checks.md（HJ4593-411）
+    manufacturerSku: 'HJ4593-411',
+    jan: null,
+    ean: null,
+    category: 'kits',
+    kitType: 'home',
+    authenticity: 'replica',
+    sleeve: 'short',
+    gender: 'men',
+    player: null,
+    image: placeholder('placeholder-kit-home.svg', 'ホームユニフォーム'),
+    active: true,
+  },
 ]

@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest'
 import { fixtureDataset } from '@/data/fixtures'
 import { leagueFixtures } from '@/data/fixtures/leagues'
 import { clubFixtures } from '@/data/fixtures/clubs'
+import { productFixtures } from '@/data/fixtures/products'
 import { validateDataset, validateProduct } from '@/domain/validation'
 import type { Product } from '@/domain/types'
 import { buildProductSlug, isValidSlug, toSlug } from '@/lib/slug'
@@ -140,14 +141,30 @@ describe('fixture データセット', () => {
     expect(leagueFixtures.some((league) => league.slug === 'bundesliga')).toBe(false)
   })
 
-  it('MVPのクラブは4つ', () => {
-    expect(clubFixtures.filter((club) => club.active)).toHaveLength(4)
+  it('登録済みのクラブは5つ', () => {
+    /*
+     * MVPの4クラブに、公式一次情報で確認できた商品があるクラブを足していきます。
+     * パリ・サンジェルマンは、リーグ・アンで最初に商品が入ったクラブです。
+     */
+    expect(clubFixtures.filter((club) => club.active)).toHaveLength(5)
     expect(clubFixtures.map((club) => club.slug).sort()).toEqual([
       'fc-barcelona',
       'liverpool',
+      'paris-saint-germain',
       'real-madrid',
       'tottenham',
     ])
+  })
+
+  it('★クラブには、商品が1つ以上ある★', () => {
+    /*
+     * 商品の無いクラブを足すと、中身の無いクラブページができてしまいます
+     * （isClubListable が false になり、sitemap にも載りません）。
+     * クラブを足すときは、必ず商品と一緒に足します。
+     */
+    const withProducts = new Set(productFixtures.map((product) => product.clubId))
+    const empty = clubFixtures.filter((club) => club.active && !withProducts.has(club.id)).map((club) => club.slug)
+    expect(empty).toEqual([])
   })
 
   it('すべてのクラブが、存在するリーグに属している', () => {

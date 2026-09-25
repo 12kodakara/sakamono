@@ -63,7 +63,7 @@ describe('一覧の中身', () => {
   it('description は実際の件数・リーグ・種類だけで作る', async () => {
     const { index } = await realIndex()
     expect(index.description).toBe(
-      `プレミアリーグ・ラ・リーガの${index.clubs.length}クラブのユニフォーム${index.kits.length}点を、` +
+      `プレミアリーグ・ラ・リーガ・リーグ・アンの${index.clubs.length}クラブのユニフォーム${index.kits.length}点を、` +
         'クラブや種類（ホーム・アウェイ・サード・ゴールキーパー）で横断して探せます。' +
         '海外ストアの価格がある商品は、日本到着推定額も確認できます。',
     )

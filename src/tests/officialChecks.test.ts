@@ -215,6 +215,19 @@ const CONFIRMED = [
     record: 'page',
   },
   {
+    // ★リーグ・アン最初のクラブ。★
+    sku: 'HJ4593-411',
+    id: 'product-psg-2526-home-replica',
+    clubId: 'club-psg',
+    season: '2025/26',
+    kitType: 'home',
+    authenticity: 'replica',
+    manufacturer: 'Nike',
+    gender: 'men',
+    sleeve: 'short',
+    record: 'page',
+  },
+  {
     sku: 'JY4237',
     id: 'product-lfc-2526-home-authentic',
     clubId: 'club-liverpool',
@@ -256,9 +269,9 @@ const SAMPLE_LISTINGS_REMAIN = new Set([
 ])
 
 describe('★人手で公式確認した商品★', () => {
-  it('確認済みの品番は17件で、重複していない', () => {
+  it('確認済みの品番は18件で、重複していない', () => {
     const skus = CONFIRMED.map((checked) => checked.sku)
-    expect(skus).toHaveLength(17)
+    expect(skus).toHaveLength(18)
     expect(new Set(skus).size).toBe(skus.length)
   })
 
@@ -375,6 +388,7 @@ describe('★人手で公式確認した商品★', () => {
     'club-tottenham|2025/26': 'Nike',
     'club-fc-barcelona|2025/26': 'Nike',
     'club-real-madrid|2025/26': 'adidas',
+    'club-psg|2025/26': 'Nike',
   }
 
   /** 公式確認ができていないことを表す印。推測で埋めない代わりに使う。 */

@@ -3,8 +3,11 @@
  *
  * ★これは開発用のサンプルデータです。★
  *
- * 第1段階（MVP）で表示するのは以下の4クラブだけです。
+ * 第1段階（MVP）は以下の4クラブで始めました。
  *   Liverpool / Tottenham Hotspur / FC Barcelona / Real Madrid
+ *
+ * その後、公式一次情報で確認できた商品があるクラブを足しています。
+ *   Paris Saint-Germain（2026-09-25 追加。リーグ・アンの最初のクラブ）
  *
  * 最終的には約100クラブ規模を想定しています。
  * クラブを増やすときはこの配列へ追加するだけでよく、
@@ -62,6 +65,18 @@ export const clubFixtures: Club[] = [
     country: 'スペイン',
     officialStoreUrl: 'https://shop.realmadrid.com/',
     displayOrder: 4,
+    active: true,
+  },
+  {
+    // 公式確認: パリ・サンジェルマン公式サイト（psg.fr）が案内している公式ストアを確認（2026-09-25）。
+    id: 'club-psg',
+    leagueId: 'league-ligue-1',
+    slug: 'paris-saint-germain',
+    name: 'Paris Saint-Germain',
+    nameJa: 'パリ・サンジェルマン',
+    country: 'フランス',
+    officialStoreUrl: 'https://store.psg.fr/',
+    displayOrder: 5,
     active: true,
   },
 ]

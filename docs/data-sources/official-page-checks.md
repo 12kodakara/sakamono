@@ -94,6 +94,45 @@
 | カラー | Team Gold/Team Gold/Persian Violet/Black | （項目なし） | 参考 |
 | 袖 | 表示なし | 半袖 | 公式表示なし（矛盾なし） |
 
+### 1-4. HJ4593-411（product-psg-2526-home-replica）
+
+**リーグ・アン最初のクラブです。** これまでプレミアリーグとラ・リーガの4クラブだけで、
+セリエA・リーグ・アン・エールディヴィジはクラブが0件のままでした。
+
+| 項目 | 公式表示 | サカモノの登録値 | 照合 |
+| --- | --- | --- | --- |
+| 確認方法 | Nike公式の商品ページを直接確認 | — | — |
+| 確認日 | 2026-09-25 | — | — |
+| 商品名 | Paris Saint-Germain 2025/26 Stadium Home Men's Nike Dri-FIT Football Replica Shirt | Paris Saint-Germain 2025/26 Home Replica Shirt | ✅ 同一商品 |
+| スタイル番号 | HJ4593-411 | HJ4593-411 | ✅ 一致 |
+| クラブ | Paris Saint-Germain | パリ・サンジェルマン | ✅ 一致 |
+| シーズン | 2025/26 | 2025/26 | ✅ 一致 |
+| 種類 | Home | home | ✅ 一致 |
+| 仕様 | **Stadium**（＝レプリカ） | replica | ✅ 一致 |
+| メーカー | Nike | Nike | ✅ 一致 |
+| 対象 | Men's | men | ✅ 一致 |
+| カラー | Midnight Navy/Midnight Navy/White | （項目なし） | 参考 |
+| 袖 | 表示なし | 半袖 | 公式表示なし（矛盾なし） |
+
+クラブ情報（`club-psg`）も公式で確認しています。
+
+| 項目 | 確認元 | 登録値 |
+| --- | --- | --- |
+| クラブ名 | psg.fr（公式サイト） | Paris Saint-Germain |
+| 公式ストア | psg.fr のフッターが案内する `store.psg.fr` | https://store.psg.fr/ |
+| 所属リーグ | リーグ・アン（フランス） | league-ligue-1 |
+
+> `store.psg.fr` へ直接アクセスすると 403 が返りますが、**公式サイト自身がこのURLを案内している**ため
+> 公式ストアであることは確認できています。サカモノはこのURLへ自動アクセスしません（画面のリンクに使うだけです）。
+
+### 見送った候補
+
+| 候補 | 品番 | 理由 |
+| --- | --- | --- |
+| Inter Milan 2025/26 Stadium Home | HJ4591-439（第三者サイト表示） | **Nike公式の商品ページに到達できません（全ルート404）。** 第三者サイトだけを根拠に登録しません |
+| Tottenham 2025/26 Match Home | HJ4550-101（同上） | 同上（404） |
+| Real Madrid 2025/26 アウェイ | — | adidas が 403。迂回しません |
+
 ---
 
 ## 2. 気をつけること
