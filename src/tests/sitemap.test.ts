@@ -36,7 +36,12 @@ function input(overrides: Partial<SitemapInput> = {}): SitemapInput {
     leagues: [{ slug: 'premier-league', clubCount: 2, productCount: 5 }],
     clubs: [{ slug: 'liverpool', productCount: 5 }],
     products: [
-      { href: '/products/liverpool-home/', hasOverseasPrice: true, hasDomesticPrice: true },
+      {
+        href: '/products/liverpool-home/',
+        hasOverseasPrice: true,
+        hasDomesticPrice: true,
+        hasProductCode: true,
+      },
     ],
     saleCount: 1,
     rankingCount: 1,
@@ -95,12 +100,31 @@ describe('掲載の判断', () => {
   })
 
   it('★海外価格も国内価格も無い商品は載せない★', () => {
-    const base = { href: '/products/x/' }
+    const base = { href: '/products/x/', hasProductCode: true }
     expect(isProductListable({ ...base, hasOverseasPrice: false, hasDomesticPrice: false })).toBe(
       false,
     )
     expect(isProductListable({ ...base, hasOverseasPrice: true, hasDomesticPrice: false })).toBe(true)
     expect(isProductListable({ ...base, hasOverseasPrice: false, hasDomesticPrice: true })).toBe(true)
+  })
+
+  it('★どの実在商品か分からない商品は、価格があっても載せない★', () => {
+    /*
+     * 品番が分からない＝公式情報と突き合わせられていない商品です。
+     * 値段だけ載っていても、来た人はそれが何の値段なのか確かめようがありません。
+     * 「価格がある」ことと「その商品が何か分かっている」ことは別の条件です。
+     */
+    const base = { href: '/products/x/' }
+    expect(
+      isProductListable({ ...base, hasOverseasPrice: true, hasDomesticPrice: true, hasProductCode: false }),
+    ).toBe(false)
+    expect(
+      isProductListable({ ...base, hasOverseasPrice: true, hasDomesticPrice: true, hasProductCode: true }),
+    ).toBe(true)
+    // 品番があっても、価格が1つも無ければ載せない（2つとも必要）
+    expect(
+      isProductListable({ ...base, hasOverseasPrice: false, hasDomesticPrice: false, hasProductCode: true }),
+    ).toBe(false)
   })
 
   it('セール・ランキングは、載せる商品があるときだけ載せる', () => {
@@ -126,8 +150,8 @@ describe('掲載の判断', () => {
           { slug: 'liverpool', productCount: 1 },
         ],
         products: [
-          { href: '/products/a/', hasOverseasPrice: true, hasDomesticPrice: false },
-          { href: '/products/a', hasOverseasPrice: true, hasDomesticPrice: false },
+          { href: '/products/a/', hasOverseasPrice: true, hasDomesticPrice: false, hasProductCode: true },
+          { href: '/products/a', hasOverseasPrice: true, hasDomesticPrice: false, hasProductCode: true },
         ],
       }),
     )
@@ -179,6 +203,7 @@ describe('★実際のデータから作った sitemap★', () => {
           href: view.href,
           hasOverseasPrice: view.overseas !== null,
           hasDomesticPrice: view.comparison.domesticPrice.reference !== null,
+          hasProductCode: view.product.manufacturerSku !== null,
         })),
         saleCount: sale.length,
         rankingCount: ranking.length,
@@ -186,6 +211,55 @@ describe('★実際のデータから作った sitemap★', () => {
       }),
     }
   }
+
+  /*
+   * ★ここから下は、商品を足すたびに自動で効く検査です。★
+   *   商品IDを並べて書かないので、新しいクラブ・メーカー・リーグが増えても
+   *   そのまま検査対象に入ります。
+   */
+  it('★sitemap に載る商品は、品番と価格の両方がある★', async () => {
+    const { products, entries } = await realEntries()
+    const listed = new Set(entries.filter((e) => e.kind === 'product').map((e) => e.url))
+    const bad = products
+      .filter((view) => listed.has(`${SITE}${view.href}`))
+      .filter(
+        (view) =>
+          view.product.manufacturerSku === null ||
+          (view.overseas === null && view.comparison.domesticPrice.reference === null),
+      )
+      .map((view) => view.product.id)
+    expect(bad).toEqual([])
+  })
+
+  it('★品番の無い商品は、価格があっても sitemap に載らない★', async () => {
+    /*
+     * どの実在商品なのか確認できていない商品を、検索へ出さないための検査です。
+     * 値段だけ載っていても、来た人はその値段が何の値段なのか確かめようがありません。
+     */
+    const { products, entries } = await realEntries()
+    const listed = new Set(entries.map((e) => e.url))
+    const leaked = products
+      .filter((view) => view.product.manufacturerSku === null)
+      .filter((view) => listed.has(`${SITE}${view.href}`))
+      .map((view) => view.product.id)
+    expect(leaked).toEqual([])
+  })
+
+  it('★載せない商品は1件も取りこぼさない（判定とsitemapが一致する）★', async () => {
+    // ページ側の noindex と sitemap は同じ判定関数を使っています。
+    // どちらかだけ変えてずれることがないよう、全商品で突き合わせます。
+    const { products, entries } = await realEntries()
+    const listed = new Set(entries.map((e) => e.url))
+    for (const view of products) {
+      const shouldList = isProductListable({
+        href: view.href,
+        hasOverseasPrice: view.overseas !== null,
+        hasDomesticPrice: view.comparison.domesticPrice.reference !== null,
+        hasProductCode: view.product.manufacturerSku !== null,
+      })
+      expect(listed.has(`${SITE}${view.href}`), view.product.id).toBe(shouldList)
+    }
+  })
 
   it('トップ・リーグ1件以上・クラブ3件以上を含む', async () => {
     const { entries } = await realEntries()

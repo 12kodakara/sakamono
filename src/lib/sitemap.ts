@@ -46,6 +46,11 @@ export interface SitemapProductInput {
   hasOverseasPrice: boolean
   /** 審査を通った国内価格があるか。 */
   hasDomesticPrice: boolean
+  /**
+   * メーカー品番が分かっているか（＝どの実在商品のページなのかを確認できているか）。
+   * 品番は公式情報で確認した証でもあり、国内商品と突き合わせる手掛かりでもあります。
+   */
+  hasProductCode: boolean
 }
 
 export interface SitemapInput {
@@ -151,13 +156,24 @@ export function isClubListable(club: SitemapClubInput): boolean {
 }
 
 /**
- * 比べる数字が1つでもある商品だけを載せる。
+ * 検索結果に出してよい商品ページかどうか。次の2つを両方満たすものだけ載せます。
  *
- * ★どちらも無い商品ページは「確認できていません」が並ぶだけです。★
+ * ★1. 比べる数字が1つでもあること★
+ *   どちらの価格も無いページは「確認できていません」が並ぶだけです。
  *   価格比較サイトの商品ページとして、検索から来た人に見せる中身がありません。
+ *
+ * ★2. どの実在商品のページなのかが分かっていること（メーカー品番がある）★
+ *   品番が分からない商品は、公式情報と突き合わせられていません。
+ *   「どの商品か分からないものに値段だけ付いているページ」を検索へ出すと、
+ *   来た人はその値段が何の値段なのか確かめようがありません。
+ *   価格が載っていることと、その商品が何かが分かっていることは別の話です。
+ *
+ *   （例: トッテナムのマフラーは公式ストアに複数あり、どれを指すのか特定できていません。
+ *     docs/data-sources/placeholder-audit.md）
  */
 export function isProductListable(product: SitemapProductInput): boolean {
-  return product.hasOverseasPrice || product.hasDomesticPrice
+  const hasPrice = product.hasOverseasPrice || product.hasDomesticPrice
+  return hasPrice && product.hasProductCode
 }
 
 /**
