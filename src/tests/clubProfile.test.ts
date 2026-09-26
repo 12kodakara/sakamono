@@ -129,9 +129,58 @@ describe('★全クラブへの展開★', () => {
     }
   })
 
-  it('★どのクラブでもメーカー名を書かない（データが不確かなため）★', async () => {
-    for (const { profile } of await allClubProfiles()) {
-      expect(JSON.stringify(profile)).not.toMatch(/adidas|Nike|ナイキ|アディダス/i)
+  it('★メーカー名は、品番を確認できた商品のものだけ★', async () => {
+    /*
+     * 以前は「メーカー名を一切書かない」という検査でした。
+     * 開発用データに、シーズンとメーカーの組み合わせが実際と違うものが
+     * 混ざっていたためです。その誤記を直したので、条件を
+     * 「確認できたものだけ使う」へ入れ替えました。
+     *
+     * 品番の無い商品のメーカー表記（'確認中' やクラブ自身の名前）は使いません。
+     * 商品名を並べているので、'確認中' が本文に出ることはあり得ますが、
+     * ここで見張るのは「基本情報のメーカー欄」です。
+     */
+    for (const { profile, views } of await allClubProfiles()) {
+      const row = profile.facts.find((fact) => fact.label === 'メーカー')
+      const confirmed = views.filter((view) => view.product.manufacturerSku !== null)
+      const allowed = new Set(confirmed.map((view) => view.product.manufacturer))
+      if (allowed.size === 0) {
+        expect(row, 'confirmed が無いクラブにメーカー欄は出さない').toBeUndefined()
+        continue
+      }
+      expect(row, 'confirmed があるクラブにはメーカー欄を出す').toBeDefined()
+      // 欄に出てくるメーカー名が、確認済み商品のものだけであること
+      const names = row!.value.split('・').map((part) => part.replace(/（[^）]*）$/, ''))
+      for (const name of names) expect(allowed.has(name), `${name} は確認済み商品のメーカーではない`).toBe(true)
+      // 確認済みのメーカーが漏れていないこと
+      for (const name of allowed) expect(names).toContain(name)
+      // 品番の無い商品のメーカー表記を持ち込んでいないこと
+      const unconfirmed = views
+        .filter((view) => view.product.manufacturerSku === null)
+        .map((view) => view.product.manufacturer)
+        .filter((maker) => !allowed.has(maker))
+      for (const maker of unconfirmed) expect(row!.value).not.toContain(maker)
+    }
+  })
+
+  it('★メーカーが2つ以上あるクラブは、シーズンを添える★', async () => {
+    /*
+     * サプライヤーはシーズンで変わります。リヴァプールは2024/25がNike、2025/26からadidasです。
+     * シーズンを書かずに並べると「このクラブはどっち？」と誤解させてしまいます。
+     */
+    for (const { profile, views } of await allClubProfiles()) {
+      const row = profile.facts.find((fact) => fact.label === 'メーカー')
+      if (!row) continue
+      const makers = new Set(
+        views.filter((view) => view.product.manufacturerSku !== null).map((view) => view.product.manufacturer),
+      )
+      if (makers.size > 1) {
+        // シーズンは 2025/26 のような表記なので、'（20' が入っていれば添えられている
+        expect(row.value, profile.title).toContain('（20')
+      } else {
+        // 1つだけのときは、シーズンを書かずメーカー名だけにする（余計な情報を足さない）
+        expect(row.value).not.toContain('（')
+      }
     }
   })
 
@@ -197,10 +246,19 @@ describe('リヴァプールの固有情報', () => {
     expect(profile.officialStoreUrl).toBe('https://store.liverpoolfc.com/')
   })
 
-  it('★データが不確かなメーカー名を書かない★', async () => {
+  it('★シーズンでメーカーが変わったことが分かる★', async () => {
+    /*
+     * リヴァプールは2024/25がNike、2025/26からadidasです。
+     * どちらのシーズンの商品を買うかで実際のメーカーが違うので、
+     * クラブページの基本情報でそれが分かるようにしています。
+     */
     const { profile } = await liverpoolProfile()
-    const text = JSON.stringify(profile)
-    expect(text).not.toMatch(/adidas|Nike|ナイキ|アディダス/i)
+    const row = profile.facts.find((fact) => fact.label === 'メーカー')
+    expect(row).toBeDefined()
+    expect(row!.value).toContain('adidas（2025/26）')
+    expect(row!.value).toContain('Nike（2024/25）')
+    // 新しいシーズンのメーカーを先に出す
+    expect(row!.value.indexOf('adidas')).toBeLessThan(row!.value.indexOf('Nike'))
   })
 
   it('★自分自身を関連クラブに含めない★', async () => {

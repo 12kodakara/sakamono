@@ -16,9 +16,15 @@
  *   データに無いこと（クラブの歴史・スタジアム・選手の話など）は書きません。
  *   推測で埋めた文章は、間違っていても気付けないためです。
  *
- * ★メーカー名は使っていません。★
- *   一部の開発用データで、シーズンとメーカーの組み合わせが実際と違うものがあるため
- *   （例: 2025/26 のリヴァプールは adidas だが、Nike になっている商品がある）。
+ * ★メーカー名は「品番を公式確認できた商品」からだけ拾います。★
+ *   以前は一切使っていませんでした。開発用データに、シーズンとメーカーの
+ *   組み合わせが実際と違うものが混ざっていたためです
+ *   （2025/26 のリヴァプールは adidas なのに Nike になっている商品がありました）。
+ *
+ *   その誤記は直し、品番の無い商品が根拠のないメーカー名を名乗らないことを
+ *   検査（src/tests/officialChecks.test.ts）で守るようにしました。
+ *   そこで、品番があるもの＝公式情報と突き合わせ済みのものに限って表示します。
+ *   品番の無い商品のメーカー表記（'確認中' やクラブ自身の名前）は使いません。
  * ══════════════════════════════════════════════════════════
  *
  * ★この関数はデータを受け取って結果を返すだけです。★
@@ -215,6 +221,35 @@ export function buildClubProfile(input: ClubProfileInput): ClubProfile {
   const facts: ClubProfile['facts'] = [{ label: '英語表記', value: club.name }]
   if (league) facts.push({ label: '所属リーグ', value: league.nameJa, href: `/leagues/${league.slug}/` })
   if (club.country) facts.push({ label: '国', value: club.country })
+  /*
+   * ★メーカーは、品番を確認できた商品からだけ集めます。★
+   *   サプライヤーはシーズンで変わります（リヴァプールは2024/25がNike、2025/26からadidas）。
+   *   2つ以上あるときは、どのシーズンのものかを添えないと
+   *   「このクラブはどっち？」と誤解させてしまうため、シーズンを併記します。
+   */
+  const makerSeasons = new Map<string, Set<string>>()
+  for (const view of views) {
+    const { manufacturerSku, manufacturer, season } = view.product
+    if (manufacturerSku === null || !manufacturer) continue
+    const seasonSet = makerSeasons.get(manufacturer) ?? new Set<string>()
+    if (season) seasonSet.add(season)
+    makerSeasons.set(manufacturer, seasonSet)
+  }
+  if (makerSeasons.size > 0) {
+    const newestOf = (set: Set<string>) => [...set].sort((a, b) => b.localeCompare(a))[0] ?? ''
+    const makers = [...makerSeasons.entries()].sort((a, b) => newestOf(b[1]).localeCompare(newestOf(a[1])))
+    const value =
+      makers.length === 1
+        ? makers[0][0]
+        : makers
+            .map(([maker, seasonSet]) => {
+              const label = [...seasonSet].sort((a, b) => b.localeCompare(a)).join('・')
+              return label ? `${maker}（${label}）` : maker
+            })
+            .join('・')
+    facts.push({ label: 'メーカー', value })
+  }
+
   const officialStoreUrl = club.officialStoreUrl?.startsWith('https://') ? club.officialStoreUrl : null
   if (officialStoreUrl) {
     facts.push({
