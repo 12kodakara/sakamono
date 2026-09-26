@@ -43,6 +43,7 @@ import {
   resolveStockStatus,
 } from '@/lib/labels'
 import { buildPageMetadata } from '@/lib/seo'
+import { buildPurchaseLink } from '@/lib/purchaseLink'
 import { isProductListable } from '@/lib/sitemap'
 import { SITE_URL, assetPath } from '@/lib/site'
 
@@ -94,6 +95,21 @@ export default async function ProductPage({ params }: PageProps) {
 
   const { product, club, league, overseas, comparison } = view
   const [history, meta] = await Promise.all([getPriceHistory(view), getDataSourceMeta()])
+
+  /*
+   * ★買いに行く先は1つだけ★（src/lib/purchaseLink.ts）
+   *   掲載データの URL は開発用のあいだ example.com を指すため、
+   *   そのままボタンにすると「押しても買えない」ページになります。
+   *   本物の商品URLが無いときは、公式確認済みのクラブ公式ストアへ送り、
+   *   品番で探してもらいます。行き先が無いときはボタンを出しません。
+   */
+  const purchase = buildPurchaseLink({
+    clubNameJa: club.nameJa,
+    officialStoreUrl: club.officialStoreUrl ?? null,
+    listingUrl: overseas?.listing.externalUrl ?? null,
+    listingStoreName: overseas?.store.name ?? null,
+    productCode: product.manufacturerSku,
+  })
 
   const discountPercent = overseas?.discount.isSale ? overseas.discount.percent : 0
   const domesticReference = comparison.domesticPrice.reference
@@ -186,32 +202,46 @@ export default async function ProductPage({ params }: PageProps) {
                   ) : null}
                 </p>
 
-                <div>
-                  <a
-                    className="button button--primary"
-                    href={overseas.listing.externalUrl}
-                    target="_blank"
-                    rel="noopener nofollow"
+                {meta.isSampleData ? (
+                  <p
+                    style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--color-caution)',
+                    }}
                   >
-                    {overseas.store.name}で見る
-                    <span className="visually-hidden">（新しいタブで開きます）</span>
-                  </a>
-                  {meta.isSampleData ? (
-                    <p
-                      style={{
-                        marginTop: 'var(--space-2)',
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--color-caution)',
-                      }}
-                    >
-                      ※ 現在はサンプル表示のため、このリンク先はサンプル用のURLです。
-                    </p>
-                  ) : null}
-                </div>
+                    ※ 上の価格は動作確認用のサンプル値です。実際の販売価格ではありません。
+                  </p>
+                ) : null}
               </>
             ) : (
               <p className="empty-state">この商品の海外ストアでの取り扱いを確認できていません。</p>
             )}
+
+            {/* ★外部へ出るボタンはこの1つだけ。★行き先が無いときは出さない。 */}
+            {purchase.href && purchase.label ? (
+              <div>
+                <a
+                  className="button button--primary"
+                  href={purchase.href}
+                  target="_blank"
+                  rel="noopener nofollow"
+                >
+                  {purchase.label}
+                  <span className="visually-hidden">（新しいタブで開きます）</span>
+                </a>
+                {purchase.note ? (
+                  <p
+                    style={{
+                      marginTop: 'var(--space-2)',
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--color-text-muted)',
+                    }}
+                  >
+                    {purchase.note}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
 

@@ -585,6 +585,10 @@ button {
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
+  /* ★スマホで指で押せる大きさを確保する（44px）。★
+     余白だけだと約41pxで、推奨の44pxをわずかに下回っていました。
+     購入ボタンを押し損なうと、そのまま離脱につながります。 */
+  min-height: 44px;
   font-size: var(--text-base);
   font-weight: 700;
   text-decoration: none;
