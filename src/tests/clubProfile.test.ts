@@ -10,6 +10,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { buildClubProfile, pickAltNameJa } from '@/lib/clubProfile'
+import { formatMakers, summarizeConfirmedMakers } from '@/lib/makers'
 import { isClubListable } from '@/lib/sitemap'
 import {
   getClubBySlug,
@@ -142,19 +143,16 @@ describe('★全クラブへの展開★', () => {
      */
     for (const { profile, views } of await allClubProfiles()) {
       const row = profile.facts.find((fact) => fact.label === 'メーカー')
-      const confirmed = views.filter((view) => view.product.manufacturerSku !== null)
-      const allowed = new Set(confirmed.map((view) => view.product.manufacturer))
-      if (allowed.size === 0) {
-        expect(row, 'confirmed が無いクラブにメーカー欄は出さない').toBeUndefined()
+      const summaries = summarizeConfirmedMakers(views)
+      if (summaries.length === 0) {
+        expect(row, '確認できたメーカーが無ければ欄を出さない').toBeUndefined()
         continue
       }
-      expect(row, 'confirmed があるクラブにはメーカー欄を出す').toBeDefined()
-      // 欄に出てくるメーカー名が、確認済み商品のものだけであること
-      const names = row!.value.split('・').map((part) => part.replace(/（[^）]*）$/, ''))
-      for (const name of names) expect(allowed.has(name), `${name} は確認済み商品のメーカーではない`).toBe(true)
-      // 確認済みのメーカーが漏れていないこと
-      for (const name of allowed) expect(names).toContain(name)
+      expect(row, '確認できたメーカーがあれば欄を出す').toBeDefined()
+      // 表示文は共通の組み立て（src/lib/makers.ts）と一致すること
+      expect(row!.value).toBe(formatMakers(summaries))
       // 品番の無い商品のメーカー表記を持ち込んでいないこと
+      const allowed = new Set(summaries.map((entry) => entry.maker))
       const unconfirmed = views
         .filter((view) => view.product.manufacturerSku === null)
         .map((view) => view.product.manufacturer)
@@ -171,9 +169,7 @@ describe('★全クラブへの展開★', () => {
     for (const { profile, views } of await allClubProfiles()) {
       const row = profile.facts.find((fact) => fact.label === 'メーカー')
       if (!row) continue
-      const makers = new Set(
-        views.filter((view) => view.product.manufacturerSku !== null).map((view) => view.product.manufacturer),
-      )
+      const makers = new Set(summarizeConfirmedMakers(views).map((entry) => entry.maker))
       if (makers.size > 1) {
         // シーズンは 2025/26 のような表記なので、'（20' が入っていれば添えられている
         expect(row.value, profile.title).toContain('（20')

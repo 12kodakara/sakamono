@@ -34,6 +34,7 @@
 import type { Club, KitType, League, ProductCategory } from '@/domain/types'
 import type { ProductView } from '@/data/viewModels'
 import { clubAliases } from '@/lib/matching/aliases'
+import { formatMakers, summarizeConfirmedMakers } from '@/lib/makers'
 import { AUTHENTICITY_LABEL, CATEGORY_LABEL, GENDER_LABEL, KIT_TYPE_LABEL } from '@/lib/labels'
 
 /* ------------------------------------------------------------
@@ -221,34 +222,9 @@ export function buildClubProfile(input: ClubProfileInput): ClubProfile {
   const facts: ClubProfile['facts'] = [{ label: '英語表記', value: club.name }]
   if (league) facts.push({ label: '所属リーグ', value: league.nameJa, href: `/leagues/${league.slug}/` })
   if (club.country) facts.push({ label: '国', value: club.country })
-  /*
-   * ★メーカーは、品番を確認できた商品からだけ集めます。★
-   *   サプライヤーはシーズンで変わります（リヴァプールは2024/25がNike、2025/26からadidas）。
-   *   2つ以上あるときは、どのシーズンのものかを添えないと
-   *   「このクラブはどっち？」と誤解させてしまうため、シーズンを併記します。
-   */
-  const makerSeasons = new Map<string, Set<string>>()
-  for (const view of views) {
-    const { manufacturerSku, manufacturer, season } = view.product
-    if (manufacturerSku === null || !manufacturer) continue
-    const seasonSet = makerSeasons.get(manufacturer) ?? new Set<string>()
-    if (season) seasonSet.add(season)
-    makerSeasons.set(manufacturer, seasonSet)
-  }
-  if (makerSeasons.size > 0) {
-    const newestOf = (set: Set<string>) => [...set].sort((a, b) => b.localeCompare(a))[0] ?? ''
-    const makers = [...makerSeasons.entries()].sort((a, b) => newestOf(b[1]).localeCompare(newestOf(a[1])))
-    const value =
-      makers.length === 1
-        ? makers[0][0]
-        : makers
-            .map(([maker, seasonSet]) => {
-              const label = [...seasonSet].sort((a, b) => b.localeCompare(a)).join('・')
-              return label ? `${maker}（${label}）` : maker
-            })
-            .join('・')
-    facts.push({ label: 'メーカー', value })
-  }
+  // メーカーの表示文は、クラブページとリーグページで同じものを使う（src/lib/makers.ts）
+  const makers = formatMakers(summarizeConfirmedMakers(views))
+  if (makers) facts.push({ label: 'メーカー', value: makers })
 
   const officialStoreUrl = club.officialStoreUrl?.startsWith('https://') ? club.officialStoreUrl : null
   if (officialStoreUrl) {
