@@ -59,6 +59,7 @@ import {
   type ExchangeRateTable,
   type SaleSignals,
 } from '@/domain/services'
+import { priceWithholdReason } from '@/lib/priceDisclosure'
 import { FOREIGN_TRANSACTION_FEE_RATE } from '@/lib/pricing/config'
 
 /* ============================================================
@@ -113,13 +114,30 @@ async function loadSiteData(): Promise<SiteData> {
   const sortedClubs = [...clubs].sort((a, b) => a.displayOrder - b.displayOrder)
   const rates = createExchangeRateTable(exchangeRates)
 
+  /*
+   * ★出典を確認できていない価格は、公開する画面へ渡さない。★（src/lib/priceDisclosure.ts）
+   *
+   *   いまの掲載データは動作確認用のサンプルです。全ページの帯で
+   *   「サンプルです」と書き添えてはいますが、検索結果の説明文に入った金額や
+   *   「21%OFF」「国内より◯円安い」といった言い切りの表示は、売値だと受け取られます。
+   *
+   *   公開ビルドでサンプルのときだけ、価格のもと（掲載・価格履歴・国内照合）を
+   *   空にして渡します。画面はもともと「価格情報を確認できていません。」と
+   *   出せるようになっているので、架空の値で埋めることはありません。
+   *   fixture のデータ自体は消していないので、手元の確認では今まで通り価格が出ます。
+   */
+  const withhold = priceWithholdReason({ isSampleData: source.meta.isSampleData })
+  const publishedListings = withhold ? [] : listings
+  const publishedSnapshots = withhold ? [] : snapshots
+  const publishedMatches = withhold ? [] : matches
+
   const productViews = buildProductViews({
     leagues: sortedLeagues,
     clubs: sortedClubs,
     stores,
     products,
-    listings,
-    matches,
+    listings: publishedListings,
+    matches: publishedMatches,
     shippingRules,
     importCostRules,
     variants,
@@ -135,9 +153,9 @@ async function loadSiteData(): Promise<SiteData> {
     clubs: sortedClubs,
     stores,
     products,
-    listings,
-    snapshots,
-    matches,
+    listings: publishedListings,
+    snapshots: publishedSnapshots,
+    matches: publishedMatches,
     rates,
     productViews,
   }

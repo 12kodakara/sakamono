@@ -78,11 +78,9 @@ export async function generateMetadata({ params }: PageProps) {
     description: `${club.nameJa}の${product.nameJa}（${product.season ?? 'シーズン未確認'}）を、海外公式ストアの価格と日本到着推定額で比較。${landedNote}国内価格との差も確認できます。`,
     path: `/products/${product.slug}/`,
     // ★検索に出す条件は sitemap と同じ判定を使う（ずれないように1か所にまとめてある）。★
-    //   価格が1つも無いページと、どの実在商品か分かっていないページは出しません。
+    //   どの実在商品のページなのか分かっていないものは出しません（src/lib/sitemap.ts）。
     noindex: !isProductListable({
       href: view.href,
-      hasOverseasPrice: overseas !== null,
-      hasDomesticPrice: view.comparison.domesticPrice.reference !== null,
       hasProductCode: product.manufacturerSku !== null,
     }),
   })

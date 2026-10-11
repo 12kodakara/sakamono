@@ -36,12 +36,7 @@ function input(overrides: Partial<SitemapInput> = {}): SitemapInput {
     leagues: [{ slug: 'premier-league', clubCount: 2, productCount: 5 }],
     clubs: [{ slug: 'liverpool', productCount: 5 }],
     products: [
-      {
-        href: '/products/liverpool-home/',
-        hasOverseasPrice: true,
-        hasDomesticPrice: true,
-        hasProductCode: true,
-      },
+      { href: '/products/liverpool-home/', hasProductCode: true },
     ],
     saleCount: 1,
     rankingCount: 1,
@@ -99,32 +94,25 @@ describe('掲載の判断', () => {
     expect(isClubListable({ slug: 'liverpool', productCount: 1 })).toBe(true)
   })
 
-  it('★海外価格も国内価格も無い商品は載せない★', () => {
-    const base = { href: '/products/x/', hasProductCode: true }
-    expect(isProductListable({ ...base, hasOverseasPrice: false, hasDomesticPrice: false })).toBe(
-      false,
-    )
-    expect(isProductListable({ ...base, hasOverseasPrice: true, hasDomesticPrice: false })).toBe(true)
-    expect(isProductListable({ ...base, hasOverseasPrice: false, hasDomesticPrice: true })).toBe(true)
-  })
-
-  it('★どの実在商品か分からない商品は、価格があっても載せない★', () => {
+  it('★どの実在商品か分からない商品は載せない★', () => {
     /*
      * 品番が分からない＝公式情報と突き合わせられていない商品です。
-     * 値段だけ載っていても、来た人はそれが何の値段なのか確かめようがありません。
-     * 「価格がある」ことと「その商品が何か分かっている」ことは別の条件です。
+     * 何のページなのかを言えないので、検索結果へは出しません。
      */
-    const base = { href: '/products/x/' }
-    expect(
-      isProductListable({ ...base, hasOverseasPrice: true, hasDomesticPrice: true, hasProductCode: false }),
-    ).toBe(false)
-    expect(
-      isProductListable({ ...base, hasOverseasPrice: true, hasDomesticPrice: true, hasProductCode: true }),
-    ).toBe(true)
-    // 品番があっても、価格が1つも無ければ載せない（2つとも必要）
-    expect(
-      isProductListable({ ...base, hasOverseasPrice: false, hasDomesticPrice: false, hasProductCode: true }),
-    ).toBe(false)
+    expect(isProductListable({ href: '/products/x/', hasProductCode: false })).toBe(false)
+    expect(isProductListable({ href: '/products/x/', hasProductCode: true })).toBe(true)
+  })
+
+  it('★価格が無くても、品番が分かっていれば載せる★', () => {
+    /*
+     * 以前は「価格が1つでもあること」も条件にしていました。
+     * いま出典を確認できた価格は1件も無いので（src/lib/priceDisclosure.ts）、
+     * 価格を必須にすると公式確認済みの商品ページまで全部消えてしまいます。
+     *
+     * 価格が無いページにも、品番・メーカー・シーズン・種類・仕様・対象と
+     * 公式ストアへの導線があります。条件は「どの商品か分かっているか」だけにします。
+     */
+    expect(isProductListable({ href: '/products/x/', hasProductCode: true })).toBe(true)
   })
 
   it('セール・ランキングは、載せる商品があるときだけ載せる', () => {
@@ -150,8 +138,8 @@ describe('掲載の判断', () => {
           { slug: 'liverpool', productCount: 1 },
         ],
         products: [
-          { href: '/products/a/', hasOverseasPrice: true, hasDomesticPrice: false, hasProductCode: true },
-          { href: '/products/a', hasOverseasPrice: true, hasDomesticPrice: false, hasProductCode: true },
+          { href: '/products/a/', hasProductCode: true },
+          { href: '/products/a', hasProductCode: true },
         ],
       }),
     )
@@ -217,18 +205,29 @@ describe('★実際のデータから作った sitemap★', () => {
    *   商品IDを並べて書かないので、新しいクラブ・メーカー・リーグが増えても
    *   そのまま検査対象に入ります。
    */
-  it('★sitemap に載る商品は、品番と価格の両方がある★', async () => {
+  it('★sitemap に載る商品は、どれも品番が分かっている★', async () => {
+    // 品番が無い＝何のページなのか言えない商品を、検索結果へ出さないための検査。
     const { products, entries } = await realEntries()
     const listed = new Set(entries.filter((e) => e.kind === 'product').map((e) => e.url))
     const bad = products
       .filter((view) => listed.has(`${SITE}${view.href}`))
-      .filter(
-        (view) =>
-          view.product.manufacturerSku === null ||
-          (view.overseas === null && view.comparison.domesticPrice.reference === null),
-      )
+      .filter((view) => view.product.manufacturerSku === null)
       .map((view) => view.product.id)
     expect(bad).toEqual([])
+  })
+
+  it('★価格が無くても、品番が分かっている商品は sitemap に載る★', async () => {
+    /*
+     * 出典を確認できた価格が1件も無い状態でも、公式確認を済ませた商品ページが
+     * 検索から消えないことを確かめます（src/lib/priceDisclosure.ts）。
+     */
+    const { products, entries } = await realEntries()
+    const listed = new Set(entries.map((e) => e.url))
+    const coded = products.filter((view) => view.product.manufacturerSku !== null)
+    expect(coded.length).toBeGreaterThan(0)
+    for (const view of coded) {
+      expect(listed.has(`${SITE}${view.href}`), view.product.id).toBe(true)
+    }
   })
 
   it('★品番の無い商品は、価格があっても sitemap に載らない★', async () => {
@@ -253,8 +252,6 @@ describe('★実際のデータから作った sitemap★', () => {
     for (const view of products) {
       const shouldList = isProductListable({
         href: view.href,
-        hasOverseasPrice: view.overseas !== null,
-        hasDomesticPrice: view.comparison.domesticPrice.reference !== null,
         hasProductCode: view.product.manufacturerSku !== null,
       })
       expect(listed.has(`${SITE}${view.href}`), view.product.id).toBe(shouldList)

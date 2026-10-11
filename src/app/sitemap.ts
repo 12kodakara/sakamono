@@ -52,8 +52,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     products: products.map((view) => ({
       href: view.href,
-      hasOverseasPrice: view.overseas !== null,
-      hasDomesticPrice: view.comparison.domesticPrice.reference !== null,
       hasProductCode: view.product.manufacturerSku !== null,
     })),
     saleCount: sale.length,
