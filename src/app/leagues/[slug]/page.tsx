@@ -13,6 +13,7 @@ import { Fragment } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
+import { TrademarkNote } from '@/components/layout/TrademarkNote'
 import { ClubCard } from '@/components/club/ClubCard'
 import { ProductGrid } from '@/components/product/ProductGrid'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -195,6 +196,8 @@ export default async function LeaguePage({ params }: PageProps) {
             ))}
           </ul>
         </section>
+
+        <TrademarkNote />
       </div>
     </>
   )

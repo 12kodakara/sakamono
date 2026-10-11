@@ -52,7 +52,7 @@ describe('行き先の決め方', () => {
     })
     expect(link.kind).toBe('listing')
     expect(link.href).toBe('https://store.liverpoolfc.com/products/xyz')
-    expect(link.label).toBe('Liverpool FC Official Storeで見る')
+    expect(link.label).toBe('Liverpool FC Official Store（外部サイト）で見る')
     // 商品ページへ直接行けるので、断り書きは要らない
     expect(link.note).toBeNull()
   })
@@ -83,6 +83,21 @@ describe('行き先の決め方', () => {
     const link = buildPurchaseLink({ ...base, productCode: null })
     expect(link.note).toContain('商品名から探して')
     expect(link.note).not.toContain('品番「')
+  })
+
+  it('★ボタンの文字で、外部サイトへ出ることを示す★', () => {
+    /*
+     * クラブ名＋「公式ストア」だけだと、サカモノの中の公式ページだと
+     * 受け取られる余地があります。押すと別のサイトへ出ることを文字で示します。
+     */
+    const store = buildPurchaseLink(base)
+    expect(store.label).toContain('（外部サイト）')
+    const listing = buildPurchaseLink({
+      ...base,
+      listingUrl: 'https://store.liverpoolfc.com/products/xyz',
+      listingStoreName: 'Liverpool FC Official Store',
+    })
+    expect(listing.label).toContain('（外部サイト）')
   })
 
   it('★行き先が無ければボタンを出さない★', () => {

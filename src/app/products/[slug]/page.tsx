@@ -18,6 +18,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
+import { TrademarkNote } from '@/components/layout/TrademarkNote'
 import { ComparisonResult } from '@/components/product/ComparisonResult'
 import { DomesticPricePanel } from '@/components/product/DomesticPricePanel'
 import { LandedCostTable } from '@/components/product/LandedCostTable'
@@ -425,6 +426,8 @@ export default async function ProductPage({ params }: PageProps) {
             ) : null}
           </div>
         </section>
+
+        <TrademarkNote ownerNameJa={club.nameJa} />
 
         {/*
           構造化データ（JSON-LD）。

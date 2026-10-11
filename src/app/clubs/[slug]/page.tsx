@@ -14,6 +14,7 @@
 
 import { notFound } from 'next/navigation'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
+import { TrademarkNote } from '@/components/layout/TrademarkNote'
 import { ClubProfileGuide, ClubProfileOverview } from '@/components/club/ClubProfileSections'
 import { ProductGrid } from '@/components/product/ProductGrid'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -175,9 +176,7 @@ export default async function ClubPage({ params }: PageProps) {
 
         <ClubProfileGuide clubNameJa={club.nameJa} profile={profile} />
 
-        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>
-          {club.nameJa}の名称・エンブレムは同クラブの商標です。サカモノは同クラブとは提携していません。
-        </p>
+        <TrademarkNote ownerNameJa={club.nameJa} />
       </div>
     </>
   )

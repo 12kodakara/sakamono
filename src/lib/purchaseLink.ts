@@ -64,7 +64,13 @@ export interface PurchaseLink {
   kind: PurchaseLinkKind
   /** kind が 'none' のときは null。 */
   href: string | null
-  /** ボタンの文字。押したあと何が起きるか分かる言い方にする。 */
+  /**
+   * ボタンの文字。押したあと何が起きるか分かる言い方にする。
+   *
+   * ★「（外部サイト）」を必ず入れる。★
+   *   クラブ名＋「公式ストア」だけだと、サカモノの中の公式ページだと
+   *   受け取られる余地があります。押すと別のサイトへ出ることを文字で示します。
+   */
   label: string | null
   /**
    * ボタンの下に出す補足。
@@ -94,7 +100,7 @@ export function buildPurchaseLink(input: PurchaseLinkInput): PurchaseLink {
     return {
       kind: 'listing',
       href: listingUrl,
-      label: `${listingStoreName}で見る`,
+      label: `${listingStoreName}（外部サイト）で見る`,
       note: null,
     }
   }
@@ -104,7 +110,7 @@ export function buildPurchaseLink(input: PurchaseLinkInput): PurchaseLink {
     return {
       kind: 'official-store',
       href: officialStoreUrl,
-      label: `${clubNameJa}公式ストアで探す`,
+      label: `${clubNameJa}公式ストア（外部サイト）で探す`,
       note: productCode
         ? `この商品ページのURLは確認できていません。公式ストアで品番「${productCode}」を検索してください。`
         : 'この商品ページのURLは確認できていません。公式ストアで商品名から探してください。',
