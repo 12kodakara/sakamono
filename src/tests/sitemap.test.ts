@@ -155,11 +155,22 @@ describe('掲載の判断', () => {
     expect(urls({ kitCount: 3, clubCount: 2 }).filter((u) => u.endsWith('/kits/'))).toHaveLength(1)
   })
 
-  it('トップ・一覧・about はいつも載せる', () => {
+  it('トップ・一覧・静的ページはいつも載せる', () => {
+    /*
+     * 商品が1件も無くても出すページ。
+     * プライバシーポリシーと問い合わせは、探している人が検索から直接来られるようにする。
+     */
     const urls = buildSitemapEntries(
       input({ leagues: [], clubs: [], products: [], saleCount: 0, rankingCount: 0 }),
     ).map((e) => e.url)
-    expect(urls).toEqual([`${SITE}/`, `${SITE}/clubs/`, `${SITE}/leagues/`, `${SITE}/about/`])
+    expect(urls).toEqual([
+      `${SITE}/`,
+      `${SITE}/clubs/`,
+      `${SITE}/leagues/`,
+      `${SITE}/about/`,
+      `${SITE}/privacy/`,
+      `${SITE}/contact/`,
+    ])
   })
 })
 
@@ -277,6 +288,8 @@ describe('★実際のデータから作った sitemap★', () => {
       '/sale/',
       '/rankings/',
       '/about/',
+      '/privacy/',
+      '/contact/',
       '/kits/',
       ...leagues.map((s) => `/leagues/${s.league.slug}/`),
       ...clubs.map((s) => `/clubs/${s.club.slug}/`),

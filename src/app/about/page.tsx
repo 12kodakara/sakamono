@@ -16,7 +16,8 @@ import {
 } from '@/lib/pricing/config'
 import { formatJpy } from '@/lib/format'
 import { buildPageMetadata } from '@/lib/seo'
-import { SITE_NAME } from '@/lib/site'
+import Link from 'next/link'
+import { SITE_NAME, SITE_OPERATOR } from '@/lib/site'
 
 export const metadata = buildPageMetadata({
   title: 'このサイトについて',
@@ -135,6 +136,20 @@ export default async function AboutPage() {
             {SITE_NAME}は、各クラブ・リーグ・メーカー・販売元とは提携していません。
             ロゴ画像や商品写真は、利用条件の確認が済むまで掲載していません。
           </p>
+
+          <h2>運営者とお問い合わせ</h2>
+          <p>
+            {SITE_NAME}は{SITE_OPERATOR}が運営しています。
+            掲載内容の誤りに気づかれた場合は、ご連絡いただけると助かります。
+          </p>
+          <ul>
+            <li>
+              <Link href="/contact/">お問い合わせ</Link>（連絡方法のご案内）
+            </li>
+            <li>
+              <Link href="/privacy/">プライバシーポリシー</Link>（訪問者の情報の取り扱い）
+            </li>
+          </ul>
         </article>
       </div>
     </>

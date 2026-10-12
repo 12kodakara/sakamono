@@ -250,6 +250,9 @@ export function buildSitemapEntries(input: SitemapInput): SitemapEntry[] {
 
   /* ---- 静的ページ ---- */
   add('/about/', 'static', 'daily', 0.7)
+  // 運営者・連絡先・情報の取り扱いは、探している人が検索から来られるようにする
+  add('/privacy/', 'static', 'weekly', 0.3)
+  add('/contact/', 'static', 'weekly', 0.3)
 
   return entries
 }

@@ -29,6 +29,8 @@ const FOOTER_LINKS = [
     items: [
       { href: '/about/', label: 'このサイトについて' },
       { href: '/about/#landed-cost', label: '日本到着推定額について' },
+      { href: '/privacy/', label: 'プライバシーポリシー' },
+      { href: '/contact/', label: 'お問い合わせ' },
     ],
   },
 ]

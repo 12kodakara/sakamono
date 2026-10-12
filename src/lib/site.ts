@@ -6,6 +6,36 @@
 
 export const SITE_NAME = 'サカモノ'
 export const SITE_TAGLINE = '海外サッカーグッズ、日本までいくら？'
+
+/**
+ * 運営者の表示名。
+ *
+ * ★個人の住所・電話番号・私用のメールアドレスは載せません。★
+ *   窓口を用意するために、運営者の個人情報を公開する必要はありません。
+ */
+export const SITE_OPERATOR = '12kodakara（個人）'
+
+/**
+ * 問い合わせ用のメールアドレス（サカモノ専用）。
+ *
+ * ★運営者の私用アドレスは使いません。★
+ *   窓口のために個人の連絡先を公開する必要はないため、
+ *   このサイト専用に用意したアドレスだけを載せます。
+ *
+ * ★ここに書いたアドレスは公開されます。★
+ *   変更するときは、画面表示（/contact/）と
+ *   プライバシーポリシーの記載も合わせて見直してください。
+ */
+export const CONTACT_EMAIL = 'sakamono.contact@gmail.com'
+
+/** メールソフトに入る件名の初期値。何についての連絡か分かるようにしておく。 */
+export const CONTACT_SUBJECT = '【サカモノ】お問い合わせ'
+
+/**
+ * mailto: のリンク先。
+ * 件名は日本語なので、URLとして安全な形に変換してから付ける。
+ */
+export const CONTACT_MAILTO = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(CONTACT_SUBJECT)}`
 export const SITE_DESCRIPTION =
   '海外クラブ公式ストアのサッカーグッズを、国際送料や輸入コストを含んだ「日本到着推定額」で国内価格と比較できるサイトです。'
 
