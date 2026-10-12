@@ -121,6 +121,97 @@ describe('行き先の決め方', () => {
   })
 })
 
+describe('広告（アフィリエイト）リンクの扱い', () => {
+  const base = {
+    clubNameJa: 'リヴァプール',
+    officialStoreUrl: 'https://store.liverpoolfc.com/',
+    listingUrl: null,
+    listingStoreName: null,
+    productCode: 'JV6423',
+  }
+
+  it('★提携していなければ広告扱いにしない（既定は false）★', () => {
+    // 提携していないのに「広告を含みます」と出すと、事実と違う表示になる
+    const link = buildPurchaseLink(base)
+    expect(link.isSponsored).toBe(false)
+    expect(link.rel).toBe('noopener nofollow')
+  })
+
+  it('★広告リンクのときだけ sponsored を付ける★', () => {
+    const link = buildPurchaseLink({ ...base, isAffiliateOfficialStore: true })
+    expect(link.isSponsored).toBe(true)
+    expect(link.rel).toBe('noopener sponsored')
+  })
+
+  it('★使われない経路のフラグで広告扱いにしない★', () => {
+    /*
+     * 行き先は2通り（掲載の商品URL／クラブ公式ストア）あります。
+     * 掲載が提携相手でも、実際にクラブ公式ストアへ送るなら広告ではありません。
+     * 1つのフラグにまとめると、この取り違えが起きます。
+     */
+    const toStore = buildPurchaseLink({ ...base, isAffiliateListing: true })
+    expect(toStore.kind).toBe('official-store')
+    expect(toStore.isSponsored).toBe(false)
+
+    const toListing = buildPurchaseLink({
+      ...base,
+      listingUrl: 'https://store.liverpoolfc.com/products/xyz',
+      listingStoreName: 'Liverpool FC Official Store',
+      isAffiliateOfficialStore: true,
+    })
+    expect(toListing.kind).toBe('listing')
+    expect(toListing.isSponsored).toBe(false)
+  })
+
+  it('掲載URL経由でも同じ扱いになる', () => {
+    const paid = buildPurchaseLink({
+      ...base,
+      listingUrl: 'https://store.liverpoolfc.com/products/xyz',
+      listingStoreName: 'Liverpool FC Official Store',
+      isAffiliateListing: true,
+    })
+    expect(paid.rel).toBe('noopener sponsored')
+    const free = buildPurchaseLink({
+      ...base,
+      listingUrl: 'https://store.liverpoolfc.com/products/xyz',
+      listingStoreName: 'Liverpool FC Official Store',
+    })
+    expect(free.rel).toBe('noopener nofollow')
+  })
+
+  it('rel には必ず noopener が入る', () => {
+    for (const flag of [true, false]) {
+      expect(buildPurchaseLink({ ...base, isAffiliateOfficialStore: flag }).rel).toContain('noopener')
+    }
+  })
+
+  it('行き先が無いときは広告扱いにしない', () => {
+    const link = buildPurchaseLink({ ...base, officialStoreUrl: null, isAffiliateOfficialStore: true })
+    expect(link.kind).toBe('none')
+    expect(link.isSponsored).toBe(false)
+  })
+
+  it('★いまのデータでは広告リンクが1件も無い★', async () => {
+    /*
+     * 提携しているストアが無いあいだ、広告の表示が出ないことを守る。
+     * 提携が決まってデータが変われば、この件数は自然に増える。
+     */
+    const views = await listProductViews()
+    const sponsored = views.filter((view) => {
+      const link = buildPurchaseLink({
+        clubNameJa: view.club.nameJa,
+        officialStoreUrl: view.club.officialStoreUrl ?? null,
+        listingUrl: view.overseas?.listing.externalUrl ?? null,
+        listingStoreName: view.overseas?.store.name ?? null,
+        productCode: view.product.manufacturerSku,
+        isAffiliateListing: view.overseas?.store.affiliateAvailable === true,
+      })
+      return link.isSponsored
+    })
+    expect(sponsored).toEqual([])
+  })
+})
+
 describe('★実データ：すべての商品に、押せば行ける先が1つある★', () => {
   it('どの商品も予約ドメインへ送らない', async () => {
     for (const view of await listProductViews()) {

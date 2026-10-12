@@ -52,6 +52,16 @@ export function isRealStoreUrl(url: string | null | undefined): boolean {
   return !RESERVED_EXAMPLE_HOSTS.some((reserved) => host === reserved || host.endsWith(`.${reserved}`))
 }
 
+/**
+ * リンクに付ける rel を決める。
+ *
+ * ★noopener は必ず付けます。★（別タブで開いた先からこのページを触られないようにする）
+ * ★広告なら sponsored、そうでなければ nofollow。★
+ */
+function relFor(isSponsored: boolean): string {
+  return isSponsored ? 'noopener sponsored' : 'noopener nofollow'
+}
+
 export type PurchaseLinkKind =
   /** 掲載データの商品URLへ送る。 */
   | 'listing'
@@ -77,6 +87,24 @@ export interface PurchaseLink {
    * 商品ページURLではないときは、そのことを隠さずに書く。
    */
   note: string | null
+  /**
+   * この行き先が広告（アフィリエイト）リンクかどうか。
+   *
+   * ★true のときだけ、ページに広告であることの表示を出します。★
+   *   提携していないうちに「広告を含みます」と書くと、事実と違う表示になります。
+   *   逆に提携してから書き忘れると、広告だと分からないまま押させることになります。
+   *   どちらも起きないよう、データ（ストアの affiliateAvailable）で切り替えます。
+   */
+  isSponsored: boolean
+  /**
+   * リンクに付ける rel。
+   *
+   * ★広告リンクには sponsored を付けます。★
+   *   対価を受け取って誘導するリンクであることを検索エンジンへ伝える値です。
+   *   対価を受けていないあいだは nofollow のままにします
+   *   （受けていないのに sponsored を付けると、こちらも事実と違います）。
+   */
+  rel: string
 }
 
 export interface PurchaseLinkInput {
@@ -90,6 +118,24 @@ export interface PurchaseLinkInput {
   listingStoreName: string | null
   /** メーカー品番。公式確認できていなければ null。 */
   productCode: string | null
+  /*
+   * ★広告（アフィリエイト）かどうかは、行き先ごとに受け取ります。★
+   *
+   *   行き先は2通りあり（掲載の商品URL／クラブ公式ストア）、
+   *   提携しているのがどちらかは状況によって変わります。
+   *   まとめて1つのフラグにすると、使われない経路の方を
+   *   広告扱いしてしまう間違いが起きます。
+   *
+   *   どちらも省略時は false（＝広告ではない）。提携していないのに
+   *   広告扱いになることがない向きに倒しています。
+   *
+   *   ★ここで推測しません。★ ASPの仕様（計測用URLの形など）は
+   *   提携が決まってから確認し、その実態をデータへ入れて渡します。
+   */
+  /** 掲載の商品URLが広告リンクか（掲載ストアの affiliateAvailable）。 */
+  isAffiliateListing?: boolean
+  /** クラブ公式ストアへの行き先が広告リンクか。 */
+  isAffiliateOfficialStore?: boolean
 }
 
 export function buildPurchaseLink(input: PurchaseLinkInput): PurchaseLink {
@@ -97,16 +143,20 @@ export function buildPurchaseLink(input: PurchaseLinkInput): PurchaseLink {
 
   // 1. 掲載データに本物の商品URLがあれば、それが一番近い
   if (isRealStoreUrl(listingUrl) && listingStoreName) {
+    const isSponsored = input.isAffiliateListing === true
     return {
       kind: 'listing',
       href: listingUrl,
       label: `${listingStoreName}（外部サイト）で見る`,
       note: null,
+      isSponsored,
+      rel: relFor(isSponsored),
     }
   }
 
   // 2. クラブ公式ストアへ送る（商品ページURLは分かっていないと明記する）
   if (isRealStoreUrl(officialStoreUrl)) {
+    const isSponsored = input.isAffiliateOfficialStore === true
     return {
       kind: 'official-store',
       href: officialStoreUrl,
@@ -114,9 +164,11 @@ export function buildPurchaseLink(input: PurchaseLinkInput): PurchaseLink {
       note: productCode
         ? `この商品ページのURLは確認できていません。公式ストアで品番「${productCode}」を検索してください。`
         : 'この商品ページのURLは確認できていません。公式ストアで商品名から探してください。',
+      isSponsored,
+      rel: relFor(isSponsored),
     }
   }
 
   // 3. 送れる先が無いときは、あるように見せない
-  return { kind: 'none', href: null, label: null, note: null }
+  return { kind: 'none', href: null, label: null, note: null, isSponsored: false, rel: relFor(false) }
 }

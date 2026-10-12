@@ -18,6 +18,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
+import { SponsoredNote } from '@/components/layout/SponsoredNote'
 import { TrademarkNote } from '@/components/layout/TrademarkNote'
 import { ComparisonResult } from '@/components/product/ComparisonResult'
 import { DomesticPricePanel } from '@/components/product/DomesticPricePanel'
@@ -55,6 +56,19 @@ interface PageProps {
 export async function generateStaticParams() {
   const views = await listProductViews()
   return views.map((view) => ({ slug: view.product.slug }))
+}
+
+/**
+ * クラブ公式ストアへの行き先が広告リンクかどうか。
+ *
+ * ★いまは必ず false を返します。★
+ *   クラブの公式ストアが提携相手かどうかを表すデータが、まだありません。
+ *   提携したときに、その事実をデータへ入れてからここで読んでください。
+ *   「おそらく提携している」で true にすると、広告でないリンクに
+ *   広告の表示が出てしまいます。
+ */
+function officialStoreIsAffiliate(_club: { slug: string }): boolean {
+  return false
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -108,6 +122,20 @@ export default async function ProductPage({ params }: PageProps) {
     listingUrl: overseas?.listing.externalUrl ?? null,
     listingStoreName: overseas?.store.name ?? null,
     productCode: product.manufacturerSku,
+    /*
+     * ★広告リンクかどうかは、データが決めます。★
+     *   掲載の商品URLは、そのストアの affiliateAvailable を見ます。
+     *   いまは全ストアが false なので、広告の表示は出ません。
+     */
+    isAffiliateListing: overseas?.store.affiliateAvailable === true,
+    /*
+     * ★クラブ公式ストアへの行き先。★
+     *   いまはこのクラブのストアが提携相手かどうかを表すデータがありません。
+     *   提携したら、ストアとして登録して affiliateAvailable を持たせるなど、
+     *   データで表せる形にしてからここへ渡してください
+     *   （docs/affiliate-readiness.md）。推測で true にしないこと。
+     */
+    isAffiliateOfficialStore: officialStoreIsAffiliate(club),
   })
 
   const discountPercent = overseas?.discount.isSale ? overseas.discount.percent : 0
@@ -219,11 +247,13 @@ export default async function ProductPage({ params }: PageProps) {
             {/* ★外部へ出るボタンはこの1つだけ。★行き先が無いときは出さない。 */}
             {purchase.href && purchase.label ? (
               <div>
+                {/* ★広告であることは、押すボタンのすぐ前に出す。★ */}
+                <SponsoredNote hasSponsoredLink={purchase.isSponsored} />
                 <a
                   className="button button--primary"
                   href={purchase.href}
                   target="_blank"
-                  rel="noopener nofollow"
+                  rel={purchase.rel}
                 >
                   {purchase.label}
                   <span className="visually-hidden">（新しいタブで開きます）</span>

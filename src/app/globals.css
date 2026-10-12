@@ -1676,3 +1676,30 @@ button {
 .price-summary > .price-row__label:only-child {
   white-space: normal;
 }
+
+/* ------------------------------------------------------------
+ * 広告（アフィリエイト）リンクがあることの表示
+ *
+ * ★押すボタンの直前に置き、見落とされない大きさにする。★
+ *   小さすぎると広告だと気づけず、大きすぎると本文を邪魔します。
+ *   いまは提携しているストアが無いため、どのページにも出ません。
+ * ---------------------------------------------------------- */
+.sponsored-note {
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.sponsored-note strong {
+  display: inline-block;
+  margin-right: var(--space-2);
+  padding: 0 var(--space-2);
+  color: #fff;
+  background: var(--color-text-muted);
+  border-radius: var(--radius-sm, 3px);
+}
