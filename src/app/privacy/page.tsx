@@ -16,7 +16,7 @@ import { buildPageMetadata } from '@/lib/seo'
 import { CONTACT_EMAIL, SITE_NAME, SITE_OPERATOR } from '@/lib/site'
 
 /** この文面を最後に見直した日。内容を変えたらここも直す。 */
-const LAST_UPDATED = '2026年10月11日'
+const LAST_UPDATED = '2026年10月12日'
 
 export const metadata = buildPageMetadata({
   title: 'プライバシーポリシー',
